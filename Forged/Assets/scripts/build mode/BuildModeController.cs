@@ -126,13 +126,28 @@ public class BuildModeController : MonoBehaviour
             float angleFromUp = Vector3.Angle(hit.normal, Vector3.up);
             isOnValidFloor = hitIsGround && angleFromUp <= maxFloorAngle;
 
-            Vector3 targetCenter;
             if (hitIsGround)
             {
-                // Rest the object's bounds on top of the ground point,
-                // regardless of angle - the angle check above is what
-                // actually decides if this counts as valid floor.
-                targetCenter = hit.point + Vector3.up * (extents.y + surfaceOffset);
+                Transform anchor = heldObject.GroundAnchor;
+                if (anchor != null)
+                {
+                    // Move the object by exactly the difference between where
+                    // its anchor currently is and where we want the anchor to
+                    // be. This works at any rotation, since the anchor is a
+                    // child transform and its world position already reflects
+                    // the object's current yaw.
+                    Vector3 desiredAnchorPos = hit.point + Vector3.up * surfaceOffset;
+                    Vector3 delta = desiredAnchorPos - anchor.position;
+                    heldTransform.position += delta;
+                }
+                else
+                {
+                    // Fallback: rest the object's collider bounds on top of
+                    // the ground point. Only accurate if the mesh is roughly
+                    // centered in its collider.
+                    Vector3 targetCenter = hit.point + Vector3.up * (extents.y + surfaceOffset);
+                    heldTransform.position = targetCenter - centerOffset;
+                }
             }
             else
             {
@@ -144,10 +159,9 @@ public class BuildModeController : MonoBehaviour
                                + Mathf.Abs(extents.y * hit.normal.y)
                                + Mathf.Abs(extents.z * hit.normal.z)
                                + surfaceOffset;
-                targetCenter = hit.point + hit.normal * pushOut;
+                Vector3 targetCenter = hit.point + hit.normal * pushOut;
+                heldTransform.position = targetCenter - centerOffset;
             }
-
-            heldTransform.position = targetCenter - centerOffset;
         }
         else
         {
