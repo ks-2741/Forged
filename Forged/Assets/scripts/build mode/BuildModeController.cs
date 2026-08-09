@@ -2,10 +2,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Add this alongside PlayerController. Lets the player pick up a Placeable
-/// object (like the anvil), move it around as a preview that follows a
-/// raycast against the ground/walls, shows red/green depending on whether
-/// the spot is clear, rotate it, and confirm or cancel placement.
+/// Add this alongside PlayerController. Press B to toggle Build Mode.
+/// While Build Mode is active: left-click picks up a Placeable object
+/// you're looking at, then left-click again to confirm placement (shown
+/// red/green depending on whether the spot is clear and on valid floor).
+/// Right-click or Escape cancels. Left-click is only used for build
+/// actions while Build Mode is on - it's free for other interactions
+/// (storage, customers, etc.) the rest of the time.
 /// </summary>
 public class BuildModeController : MonoBehaviour
 {
@@ -22,18 +25,23 @@ public class BuildModeController : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayers;
     [SerializeField] private float surfaceOffset = 0.02f;
 
-    [Header("Rotation")]
-    [SerializeField] private float rotationStep = 15f;
-
     [Header("Floor Only")]
     [Tooltip("Max angle (degrees) between the surface normal and world up for a spot to count as 'floor'. 0 = perfectly flat only, higher allows gentle slopes.")]
     [SerializeField] private float maxFloorAngle = 45f;
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLogging = true;
+
     private Placeable heldObject;
     private Transform heldTransform;
     private bool isOnValidFloor;
+    private bool buildModeActive;
 
+    /// <summary>True while carrying an object, mid-placement.</summary>
     public bool IsInBuildMode => heldObject != null;
+
+    /// <summary>True while Build Mode is toggled on (whether or not something's currently held).</summary>
+    public bool IsBuildModeActive => buildModeActive;
 
     private void Update()
     {
@@ -44,18 +52,34 @@ public class BuildModeController : MonoBehaviour
             return;
         }
 
+        // Don't allow any build mode input while the crafting menu is open.
+        if (CraftingUI.Instance != null && CraftingUI.Instance.IsOpen)
+        {
+            return;
+        }
+
+        // Only allow toggling Build Mode when nothing's currently held, so
+        // you can't get stuck carrying something with no way to place it.
+        if (keyboard.bKey.wasPressedThisFrame && !IsInBuildMode)
+        {
+            buildModeActive = !buildModeActive;
+            if (debugLogging) Debug.Log($"[BuildMode] Toggled: {buildModeActive}");
+        }
+
+        if (!buildModeActive)
+        {
+            return;
+        }
+
         if (!IsInBuildMode)
         {
-            // Not holding anything: E picks up an already-placed Placeable
-            // you're looking at.
-            if (keyboard.eKey.wasPressedThisFrame)
+            if (mouse.leftButton.wasPressedThisFrame)
             {
                 TryPickUp();
             }
         }
         else
         {
-            HandleRotationInput(keyboard);
             UpdatePreviewPosition();
 
             bool isValid = isOnValidFloor && CheckPlacementValid();
@@ -72,35 +96,42 @@ public class BuildModeController : MonoBehaviour
         }
     }
 
-    private void HandleRotationInput(Keyboard keyboard)
-    {
-        if (keyboard.qKey.wasPressedThisFrame)
-        {
-            heldTransform.Rotate(Vector3.up, -rotationStep, Space.World);
-        }
-        else if (keyboard.eKey.wasPressedThisFrame)
-        {
-            heldTransform.Rotate(Vector3.up, rotationStep, Space.World);
-        }
-    }
-
     private void TryPickUp()
     {
         if (cameraTransform == null)
         {
+            if (debugLogging) Debug.LogWarning("[BuildMode] TryPickUp aborted: Camera Transform is not assigned.");
             return;
         }
 
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+
+        if (debugLogging)
+        {
+            Debug.Log($"[BuildMode] TryPickUp: raycasting from {ray.origin} forward, range {pickupRange}, mask {LayerMaskToString(placeableLayer)}");
+            Debug.DrawRay(ray.origin, ray.direction * pickupRange, Color.yellow, 2f);
+        }
+
         if (Physics.Raycast(ray, out RaycastHit hit, pickupRange, placeableLayer))
         {
+            if (debugLogging) Debug.Log($"[BuildMode] Raycast hit '{hit.collider.name}' on layer '{LayerMask.LayerToName(hit.collider.gameObject.layer)}' at distance {hit.distance:F2}");
+
             Placeable placeable = hit.collider.GetComponentInParent<Placeable>();
             if (placeable != null)
             {
                 heldObject = placeable;
                 heldTransform = placeable.transform;
                 heldObject.BeginPreview();
+                if (debugLogging) Debug.Log($"[BuildMode] Picked up '{placeable.name}'.");
             }
+            else if (debugLogging)
+            {
+                Debug.LogWarning($"[BuildMode] Hit '{hit.collider.name}' but it (and its parents) has no Placeable component attached.");
+            }
+        }
+        else if (debugLogging)
+        {
+            Debug.LogWarning("[BuildMode] Raycast hit nothing within range on Placeable Layer. Either you're not looking directly at it, it's out of Pickup Range, or its GameObject's layer isn't included in the Placeable Layer mask.");
         }
     }
 
@@ -215,5 +246,24 @@ public class BuildModeController : MonoBehaviour
     private static bool IsInLayerMask(int layer, LayerMask mask)
     {
         return (mask.value & (1 << layer)) != 0;
+    }
+
+    private static string LayerMaskToString(LayerMask mask)
+    {
+        if (mask.value == 0)
+        {
+            return "(none selected!)";
+        }
+
+        var names = new System.Collections.Generic.List<string>();
+        for (int i = 0; i < 32; i++)
+        {
+            if ((mask.value & (1 << i)) != 0)
+            {
+                string layerName = LayerMask.LayerToName(i);
+                names.Add(string.IsNullOrEmpty(layerName) ? $"#{i}" : layerName);
+            }
+        }
+        return string.Join(", ", names);
     }
 }

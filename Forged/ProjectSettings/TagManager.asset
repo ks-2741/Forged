@@ -12,9 +12,9 @@ TagManager:
   - Ground
   - Water
   - UI
-  - Placeable' layer
+  - Placeable
   - Obstacle
-  - 
+  - PickUP
   - 
   - 
   - 

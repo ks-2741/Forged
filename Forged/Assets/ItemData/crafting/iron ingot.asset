@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e05dc7a93f16246a6e25ea3cc4f775, type: 3}
+  m_Name: iron ingot
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  inputItem: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
+  inputAmount: 1
+  outputItem: {fileID: 0}
+  outputAmount: 1
+  craftTime: 3
