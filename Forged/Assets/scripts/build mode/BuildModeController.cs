@@ -53,10 +53,7 @@ public class BuildModeController : MonoBehaviour
         }
 
         // Don't allow any build mode input while the crafting menu is open.
-        if (CraftingUI.Instance != null && CraftingUI.Instance.IsOpen)
-        {
-            return;
-        }
+       
 
         // Only allow toggling Build Mode when nothing's currently held, so
         // you can't get stuck carrying something with no way to place it.

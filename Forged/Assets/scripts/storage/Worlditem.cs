@@ -2,10 +2,12 @@ using UnityEngine;
 
 /// <summary>
 /// Put this on the physical world prefab for an item (e.g. a single ore
-/// chunk), alongside a Rigidbody and a normal (non-trigger) Collider so it
-/// physically falls and rests on the pallet. The player looks at it and
-/// left-clicks (via PlayerInteractor) to pick it up - no need to walk into
-/// it. Each WorldItem represents one dropped piece.
+/// chunk or ingot), alongside a Rigidbody and a normal (non-trigger)
+/// Collider so it physically falls and rests on a surface. The player
+/// looks at it and left-clicks (via PlayerInteractor) to pick it up into
+/// their hand - this object itself gets re-parented there by Inventory,
+/// it is NOT destroyed on pickup. Fails if the player is already holding
+/// something.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class WorldItem : MonoBehaviour, IInteractable
@@ -30,29 +32,26 @@ public class WorldItem : MonoBehaviour, IInteractable
     {
         if (item == null)
         {
-            if (debugLogging) Debug.LogWarning($"[WorldItem] '{name}' has no ItemData assigned - nothing to collect.");
+            if (debugLogging) Debug.LogWarning($"[WorldItem] '{name}' has no ItemData assigned - nothing to pick up.");
             return;
         }
 
-        Inventory playerInventory = interactor.GetComponent<Inventory>();
-        if (playerInventory == null)
+        Inventory playerHand = interactor.GetComponent<Inventory>();
+        if (playerHand == null)
         {
-            if (debugLogging) Debug.LogWarning($"[WorldItem] '{interactor.name}' has no Inventory component - can't collect.");
+            if (debugLogging) Debug.LogWarning($"[WorldItem] '{interactor.name}' has no Inventory (hand tracker) component.");
             return;
         }
 
-        int added = playerInventory.AddItem(item, amount);
-        if (debugLogging) Debug.Log($"[WorldItem] Picked up {added}/{amount}x '{item.itemName}'.");
+        if (playerHand.IsHolding)
+        {
+            if (debugLogging) Debug.Log($"[WorldItem] Can't pick up '{item.itemName}' - already holding '{playerHand.HeldItem.itemName}'. Only one item at a time.");
+            return;
+        }
 
-        if (added >= amount)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            // Inventory couldn't fit all of it - shrink to whatever's left
-            // rather than destroying (rare with amount usually being 1).
-            amount -= added;
-        }
+        bool success = playerHand.TryPickUp(item, gameObject);
+        if (debugLogging) Debug.Log(success
+            ? $"[WorldItem] Picked up '{item.itemName}' into hand."
+            : $"[WorldItem] Failed to pick up '{item.itemName}' - check Inventory's Hand Anchor is assigned.");
     }
 }

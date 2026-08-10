@@ -35,10 +35,7 @@ public class PlayerInteractor : MonoBehaviour
         // Don't raycast into the world while the crafting menu (or any UI
         // panel with cursor unlocked) is open - clicks should hit UI, not
         // re-trigger world interactions behind it.
-        if (CraftingUI.Instance != null && CraftingUI.Instance.IsOpen)
-        {
-            return;
-        }
+       
 
         if (UnityEngine.EventSystems.EventSystem.current != null
             && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())

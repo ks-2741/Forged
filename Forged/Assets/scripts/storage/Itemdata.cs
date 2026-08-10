@@ -1,7 +1,5 @@
 using UnityEngine;
 
-
-
 public enum ItemCategory
 {
     Ore,

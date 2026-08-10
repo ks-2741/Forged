@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6e05dc7a93f16246a6e25ea3cc4f775, type: 3}
-  m_Name: iron ingot
+  m_Name: copper ingot
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
-  inputItem: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
+  inputItem: {fileID: 11400000, guid: cdcaa928ed4f707488fbd27677ff582e, type: 2}
   inputAmount: 1
-  outputItem: {fileID: 11400000, guid: ef9b1c872c4e5354daae8d95b3489ee2, type: 2}
+  outputItem: {fileID: 11400000, guid: db670330e5f7e6741a237ca0dd1e19ea, type: 2}
   outputAmount: 1
   craftTime: 3

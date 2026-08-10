@@ -1,224 +1,182 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-
-[Serializable]
-public class InventorySlot
-{
-    public ItemData item;
-    public int quantity;
-
-    public bool IsEmpty => item == null || quantity <= 0;
-
-    public void Clear()
-    {
-        item = null;
-        quantity = 0;
-    }
-}
+using UnityEngine.InputSystem;
 
 /// <summary>
-/// Fixed-size, stack-based inventory. Add this to the player. Handles
-/// stacking items up to their max stack size across multiple slots,
-/// removing items (e.g. for crafting or selling), and querying counts.
+/// Tracks the ONE item the player is currently physically holding. When an
+/// item is picked up, its actual world GameObject (with mesh, WorldItem,
+/// etc.) gets re-parented into Hand Anchor - an empty Transform positioned
+/// in front of the camera - rather than being destroyed and tracked as an
+/// abstract count. The player can only hold one item at a time.
+/// Right-click drops whatever's currently held back into the world.
 /// </summary>
 public class Inventory : MonoBehaviour
 {
-    [SerializeField] private int slotCount = 20;
+    [Header("Hand")]
+    [Tooltip("Empty child Transform positioned in front of the camera/character. Picked-up items get parented here.")]
+    [SerializeField] private Transform handAnchor;
+
+    [Header("Drop")]
+    [Tooltip("Used to guard against dropping while carrying a Placeable in Build Mode. Optional.")]
+    [SerializeField] private BuildModeController buildModeController;
+    [Tooltip("Small forward toss applied to a dropped item, using this Transform's forward direction (usually the camera). Leave empty for no toss.")]
+    [SerializeField] private Transform tossDirectionSource;
+    [SerializeField] private float tossForce = 2f;
 
     [Header("Debug")]
-    [Tooltip("Shows a simple on-screen list of slot usage and item counts while playing, for testing.")]
     [SerializeField] private bool showDebugGUI = true;
+    [SerializeField] private bool debugLogging = true;
 
-    private InventorySlot[] slots;
+    private ItemData heldItem;
+    private GameObject heldObject;
 
-    /// <summary>Fired whenever slot contents change, so UI can refresh.</summary>
-    public event Action OnInventoryChanged;
+    public bool IsHolding => heldItem != null;
+    public ItemData HeldItem => heldItem;
 
-    public IReadOnlyList<InventorySlot> Slots => slots;
+    /// <summary>Fired whenever what's held changes (picked up, consumed, or dropped).</summary>
+    public event System.Action OnHeldChanged;
 
-    private void Awake()
+    private void Update()
     {
-        slots = new InventorySlot[slotCount];
-        for (int i = 0; i < slotCount; i++)
-        {
-            slots[i] = new InventorySlot();
-        }
-    }
-
-    /// <summary>
-    /// Adds up to 'amount' of the item, stacking into existing partial
-    /// stacks first, then filling empty slots. Returns how many were
-    /// actually added (may be less than requested if the inventory is full).
-    /// </summary>
-    public int AddItem(ItemData item, int amount)
-    {
-        if (item == null || amount <= 0)
-        {
-            return 0;
-        }
-
-        int remaining = amount;
-
-        // Fill existing partial stacks of the same item first.
-        foreach (InventorySlot slot in slots)
-        {
-            if (remaining <= 0)
-            {
-                break;
-            }
-
-            if (slot.item == item && slot.quantity < item.maxStackSize)
-            {
-                int space = item.maxStackSize - slot.quantity;
-                int toAdd = Mathf.Min(space, remaining);
-                slot.quantity += toAdd;
-                remaining -= toAdd;
-            }
-        }
-
-        // Then use empty slots for whatever's left.
-        foreach (InventorySlot slot in slots)
-        {
-            if (remaining <= 0)
-            {
-                break;
-            }
-
-            if (slot.IsEmpty)
-            {
-                int toAdd = Mathf.Min(item.maxStackSize, remaining);
-                slot.item = item;
-                slot.quantity = toAdd;
-                remaining -= toAdd;
-            }
-        }
-
-        int added = amount - remaining;
-        if (added > 0)
-        {
-            OnInventoryChanged?.Invoke();
-        }
-
-        return added;
-    }
-
-    /// <summary>
-    /// Removes up to 'amount' of the item, across as many slots as needed.
-    /// Returns true only if the full amount was available and removed.
-    /// </summary>
-    public bool RemoveItem(ItemData item, int amount)
-    {
-        if (item == null || amount <= 0)
-        {
-            return false;
-        }
-
-        if (GetItemCount(item) < amount)
-        {
-            return false;
-        }
-
-        int remaining = amount;
-        foreach (InventorySlot slot in slots)
-        {
-            if (remaining <= 0)
-            {
-                break;
-            }
-
-            if (slot.item == item)
-            {
-                int toRemove = Mathf.Min(slot.quantity, remaining);
-                slot.quantity -= toRemove;
-                remaining -= toRemove;
-
-                if (slot.quantity <= 0)
-                {
-                    slot.Clear();
-                }
-            }
-        }
-
-        OnInventoryChanged?.Invoke();
-        return true;
-    }
-
-    public int GetItemCount(ItemData item)
-    {
-        int total = 0;
-        foreach (InventorySlot slot in slots)
-        {
-            if (slot.item == item)
-            {
-                total += slot.quantity;
-            }
-        }
-        return total;
-    }
-
-    public bool HasItem(ItemData item, int amount = 1)
-    {
-        return GetItemCount(item) >= amount;
-    }
-
-    public bool HasFreeSpaceFor(ItemData item, int amount)
-    {
-        int spaceAvailable = 0;
-
-        foreach (InventorySlot slot in slots)
-        {
-            if (slot.item == item && slot.quantity < item.maxStackSize)
-            {
-                spaceAvailable += item.maxStackSize - slot.quantity;
-            }
-            else if (slot.IsEmpty)
-            {
-                spaceAvailable += item.maxStackSize;
-            }
-
-            if (spaceAvailable >= amount)
-            {
-                return true;
-            }
-        }
-
-        return spaceAvailable >= amount;
-    }
-
-    private void OnGUI()
-    {
-        if (!showDebugGUI || slots == null)
+        var mouse = Mouse.current;
+        if (mouse == null)
         {
             return;
         }
 
-        int usedSlots = 0;
-        foreach (InventorySlot slot in slots)
+        if (!mouse.rightButton.wasPressedThisFrame)
         {
-            if (!slot.IsEmpty)
+            return;
+        }
+
+        // Don't drop the hand item if right-click is currently doing
+        // something else (cancelling a Build Mode placement).
+        if (buildModeController != null && buildModeController.IsInBuildMode)
+        {
+            return;
+        }
+
+        if (IsHolding)
+        {
+            DropHeld();
+        }
+    }
+
+    /// <summary>
+    /// Attempts to pick up a physical world item into the player's hand.
+    /// Fails (returns false) if already holding something. On success, the
+    /// object's physics/colliders are disabled and it's parented into the
+    /// hand anchor - the caller (WorldItem) should NOT destroy it itself.
+    /// </summary>
+    public bool TryPickUp(ItemData item, GameObject worldObject)
+    {
+        if (IsHolding)
+        {
+            return false;
+        }
+
+        if (item == null || worldObject == null || handAnchor == null)
+        {
+            return false;
+        }
+
+        heldItem = item;
+        heldObject = worldObject;
+
+        Rigidbody rb = worldObject.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+
+        foreach (Collider col in worldObject.GetComponentsInChildren<Collider>())
+        {
+            col.enabled = false;
+        }
+
+        Transform t = worldObject.transform;
+        t.SetParent(handAnchor, false);
+        t.localPosition = Vector3.zero;
+        t.localRotation = Quaternion.identity;
+
+        OnHeldChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// Consumes whatever's currently held (e.g. fed into a furnace) -
+    /// destroys its physical object and frees the hand. Returns the item
+    /// that was consumed, or null if nothing was held.
+    /// </summary>
+    public ItemData ConsumeHeld()
+    {
+        if (!IsHolding)
+        {
+            return null;
+        }
+
+        ItemData item = heldItem;
+
+        if (heldObject != null)
+        {
+            Destroy(heldObject);
+        }
+
+        heldItem = null;
+        heldObject = null;
+        OnHeldChanged?.Invoke();
+        return item;
+    }
+
+    /// <summary>Drops whatever's held back into the world at the hand position, re-enabling its physics.</summary>
+    public void DropHeld()
+    {
+        if (!IsHolding)
+        {
+            return;
+        }
+
+        if (debugLogging) Debug.Log($"[Inventory] Dropped '{heldItem.itemName}'.");
+
+        Rigidbody rb = null;
+
+        if (heldObject != null)
+        {
+            heldObject.transform.SetParent(null);
+
+            rb = heldObject.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                usedSlots++;
+                rb.isKinematic = false;
+                rb.useGravity = true;
+            }
+
+            foreach (Collider col in heldObject.GetComponentsInChildren<Collider>())
+            {
+                col.enabled = true;
             }
         }
 
-        float width = 220f;
-        float lineHeight = 20f;
-        float height = lineHeight * (usedSlots + 2) + 10f;
-
-        GUI.Box(new Rect(10, 10, width, height), "");
-        GUILayout.BeginArea(new Rect(20, 15, width - 20, height - 10));
-
-        GUILayout.Label($"Inventory: {usedSlots}/{slotCount} slots used");
-
-        foreach (InventorySlot slot in slots)
+        if (rb != null && tossDirectionSource != null && tossForce > 0f)
         {
-            if (!slot.IsEmpty)
-            {
-                GUILayout.Label($"  {slot.item.itemName}: {slot.quantity}/{slot.item.maxStackSize}");
-            }
+            rb.AddForce(tossDirectionSource.forward * tossForce, ForceMode.VelocityChange);
         }
 
+        heldItem = null;
+        heldObject = null;
+        OnHeldChanged?.Invoke();
+    }
+
+    private void OnGUI()
+    {
+        if (!showDebugGUI)
+        {
+            return;
+        }
+
+        GUI.Box(new Rect(10, 10, 220, 40), "");
+        GUILayout.BeginArea(new Rect(20, 15, 200, 30));
+        GUILayout.Label(IsHolding ? $"Holding: {heldItem.itemName} (Right-click to drop)" : "Hands empty");
         GUILayout.EndArea();
     }
 }
