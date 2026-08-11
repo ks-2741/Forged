@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 7946422115692658491}
   - component: {fileID: 4402200627042115816}
   - component: {fileID: 2931116133569743441}
+  - component: {fileID: 8949427410054278502}
+  - component: {fileID: 5022831600460137914}
   m_Layer: 8
   m_Name: hand wrap
   m_TagString: Untagged
@@ -28,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 4080933900637603121}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.000000029802322, w: 1}
-  m_LocalPosition: {x: 3.3132408, y: 0.5359645, z: -0.7658227}
+  m_LocalPosition: {x: -1.009, y: 0.058, z: 0.04}
   m_LocalScale: {x: 0.37667, y: 0.04246, z: 0.09537999}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -112,3 +114,46 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &8949427410054278502
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4080933900637603121}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &5022831600460137914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4080933900637603121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ee9bd2d842a9f949bf8608c622960a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  item: {fileID: 11400000, guid: 2b1cfbb87bccd524bb3b3b59a590d246, type: 2}
+  amount: 1
+  gripPoint: {fileID: 0}
+  debugLogging: 1

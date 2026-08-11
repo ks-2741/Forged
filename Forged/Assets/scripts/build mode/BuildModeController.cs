@@ -29,6 +29,9 @@ public class BuildModeController : MonoBehaviour
     [Tooltip("Max angle (degrees) between the surface normal and world up for a spot to count as 'floor'. 0 = perfectly flat only, higher allows gentle slopes.")]
     [SerializeField] private float maxFloorAngle = 45f;
 
+    [Header("Rotation")]
+    [SerializeField] private float rotationStep = 15f;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
@@ -52,7 +55,6 @@ public class BuildModeController : MonoBehaviour
             return;
         }
 
-        // Don't allow any build mode input while the crafting menu is open.
        
 
         // Only allow toggling Build Mode when nothing's currently held, so
@@ -77,6 +79,7 @@ public class BuildModeController : MonoBehaviour
         }
         else
         {
+            HandleRotationInput(keyboard);
             UpdatePreviewPosition();
 
             bool isValid = isOnValidFloor && CheckPlacementValid();
@@ -90,6 +93,18 @@ public class BuildModeController : MonoBehaviour
             {
                 CancelPlacement();
             }
+        }
+    }
+
+    private void HandleRotationInput(Keyboard keyboard)
+    {
+        if (keyboard.qKey.wasPressedThisFrame)
+        {
+            heldTransform.Rotate(Vector3.up, -rotationStep, Space.World);
+        }
+        else if (keyboard.eKey.wasPressedThisFrame)
+        {
+            heldTransform.Rotate(Vector3.up, rotationStep, Space.World);
         }
     }
 

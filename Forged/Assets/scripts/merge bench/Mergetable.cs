@@ -1,23 +1,27 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Put this on the merge table alongside Placeable. Each left-click while
-/// holding a matching part places it into the next empty slot (Item Slots
-/// must be in the same order as the recipe's Required Items). Once every
-/// slot is filled, holding left-click (same as the grinder) progresses the
+/// Put this on the merge table alongside Placeable. Supports MULTIPLE
+/// recipes - each left-click while holding a part drops it into the next
+/// empty slot (order doesn't matter). Once every slot is filled, the table
+/// checks which recipe (if any) matches the exact set of parts placed. If
+/// one matches, holding left-click (same as the grinder) progresses the
 /// merge - pauses if released, progress is kept. On completion it flashes,
-/// all placed parts are destroyed, and your finished sword prefab appears
-/// as a normal pickup-able WorldItem.
+/// all placed parts are destroyed, and the recipe's output prefab appears
+/// as a normal pickup-able WorldItem. If the parts placed don't match any
+/// recipe, the next click returns them all to the world instead of losing
+/// them.
 /// </summary>
 public class MergeTable : MonoBehaviour, IInteractable
 {
     [SerializeField] private string stationName = "Merge Table";
-    [SerializeField] private MergeRecipe recipe;
+    [SerializeField] private List<MergeRecipe> recipes = new List<MergeRecipe>();
 
     [Header("Placement")]
-    [Tooltip("One Transform per required item, in the SAME ORDER as the recipe's Required Items list.")]
+    [Tooltip("Physical slots parts get placed into, filled in order regardless of which recipe you're going for. Every recipe's Required Items count must match this array's length.")]
     [SerializeField] private Transform[] itemSlots;
 
     [Header("Completion")]
@@ -27,29 +31,29 @@ public class MergeTable : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
+    private ItemData[] placedItems;
     private GameObject[] placedObjects;
-    private bool[] slotFilled;
+    private int filledCount;
+    private MergeRecipe matchedRecipe;
     private float progress;
     private bool isCompleting;
 
     public bool IsMerging { get; private set; }
     public float Progress01 => progress;
-    public bool AllPartsPlaced => IsSetUp && AreAllSlotsFilled();
+    public bool AllSlotsFilled => IsSetUp && filledCount >= itemSlots.Length;
 
-    private bool IsSetUp => recipe != null && itemSlots != null
-        && recipe.requiredItems.Count > 0
-        && recipe.requiredItems.Count == itemSlots.Length;
+    private bool IsSetUp => recipes != null && recipes.Count > 0 && itemSlots != null && itemSlots.Length > 0;
 
     private void Awake()
     {
-        int count = recipe != null ? recipe.requiredItems.Count : 0;
+        int count = itemSlots != null ? itemSlots.Length : 0;
+        placedItems = new ItemData[count];
         placedObjects = new GameObject[count];
-        slotFilled = new bool[count];
     }
 
     private void Update()
     {
-        if (!IsSetUp || !AreAllSlotsFilled() || isCompleting)
+        if (!IsSetUp || !AllSlotsFilled || matchedRecipe == null || isCompleting)
         {
             return;
         }
@@ -64,7 +68,7 @@ public class MergeTable : MonoBehaviour, IInteractable
         {
             IsMerging = true;
 
-            progress += Time.deltaTime / Mathf.Max(0.01f, recipe.craftTime);
+            progress += Time.deltaTime / Mathf.Max(0.01f, matchedRecipe.craftTime);
             progress = Mathf.Clamp01(progress);
 
             if (progress >= 1f)
@@ -83,13 +87,22 @@ public class MergeTable : MonoBehaviour, IInteractable
     {
         if (!IsSetUp)
         {
-            Debug.LogWarning($"[MergeTable] '{stationName}' isn't fully configured - check Recipe and Item Slots (must match in count).");
+            Debug.LogWarning($"[MergeTable] '{stationName}' isn't fully configured - check Recipes and Item Slots.");
             return;
         }
 
-        if (AreAllSlotsFilled())
+        if (AllSlotsFilled)
         {
-            if (debugLogging) Debug.Log($"[MergeTable] All parts placed - hold left-click to merge.");
+            if (matchedRecipe != null)
+            {
+                if (debugLogging) Debug.Log("[MergeTable] All parts placed - hold left-click to merge.");
+            }
+            else
+            {
+                // Wrong combination - give the parts back instead of losing them.
+                if (debugLogging) Debug.Log("[MergeTable] These parts don't match any recipe - returning them.");
+                ReturnAllParts();
+            }
             return;
         }
 
@@ -100,69 +113,99 @@ public class MergeTable : MonoBehaviour, IInteractable
             return;
         }
 
-        int slotIndex = FindMatchingEmptySlot(playerHand.HeldItem);
-        if (slotIndex < 0)
-        {
-            if (debugLogging) Debug.Log($"[MergeTable] '{playerHand.HeldItem.itemName}' isn't needed here (or already placed).");
-            return;
-        }
-
-        GameObject released = playerHand.ReleaseHeldTo(itemSlots[slotIndex]);
+        ItemData heldItem = playerHand.HeldItem;
+        GameObject released = playerHand.ReleaseHeldTo(itemSlots[filledCount]);
         if (released == null)
         {
             return;
         }
 
-        placedObjects[slotIndex] = released;
-        slotFilled[slotIndex] = true;
+        placedItems[filledCount] = heldItem;
+        placedObjects[filledCount] = released;
+        filledCount++;
 
-        int filledCount = CountFilled();
-        if (debugLogging) Debug.Log($"[MergeTable] Placed part {filledCount}/{slotFilled.Length}.");
-    }
+        if (debugLogging) Debug.Log($"[MergeTable] Placed part {filledCount}/{itemSlots.Length}.");
 
-    private int FindMatchingEmptySlot(ItemData item)
-    {
-        for (int i = 0; i < recipe.requiredItems.Count; i++)
+        if (filledCount >= itemSlots.Length)
         {
-            if (!slotFilled[i] && recipe.requiredItems[i] == item)
+            matchedRecipe = FindMatchingRecipe();
+            if (debugLogging)
             {
-                return i;
+                Debug.Log(matchedRecipe != null
+                    ? $"[MergeTable] Parts match '{matchedRecipe.outputItem.itemName}' - hold left-click to merge."
+                    : "[MergeTable] These parts don't match any recipe. Click again to return them.");
             }
         }
-        return -1;
     }
 
-    private bool AreAllSlotsFilled()
+    private MergeRecipe FindMatchingRecipe()
     {
-        if (slotFilled.Length == 0)
+        foreach (MergeRecipe recipe in recipes)
         {
-            return false;
-        }
+            if (recipe == null || recipe.requiredItems.Count != placedItems.Length)
+            {
+                continue;
+            }
 
-        foreach (bool filled in slotFilled)
+            if (ItemSetsMatch(recipe.requiredItems, placedItems))
+            {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    private static bool ItemSetsMatch(List<ItemData> required, ItemData[] placed)
+    {
+        List<ItemData> remaining = new List<ItemData>(placed);
+        foreach (ItemData req in required)
         {
-            if (!filled)
+            int index = remaining.IndexOf(req);
+            if (index < 0)
             {
                 return false;
             }
+            remaining.RemoveAt(index);
         }
-        return true;
+        return remaining.Count == 0;
     }
 
-    private int CountFilled()
+    /// <summary>Drops all currently placed parts back into the world with physics restored, and clears the table.</summary>
+    private void ReturnAllParts()
     {
-        int count = 0;
-        foreach (bool filled in slotFilled)
+        for (int i = 0; i < placedObjects.Length; i++)
         {
-            if (filled) count++;
+            GameObject obj = placedObjects[i];
+            if (obj != null)
+            {
+                obj.transform.SetParent(null);
+
+                Rigidbody rb = obj.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = false;
+                    rb.useGravity = true;
+                }
+
+                foreach (Collider col in obj.GetComponentsInChildren<Collider>())
+                {
+                    col.enabled = true;
+                }
+            }
+
+            placedObjects[i] = null;
+            placedItems[i] = null;
         }
-        return count;
+
+        filledCount = 0;
+        matchedRecipe = null;
     }
 
     private IEnumerator CompleteMerge()
     {
         isCompleting = true;
         IsMerging = false;
+        MergeRecipe recipe = matchedRecipe;
         if (debugLogging) Debug.Log($"[MergeTable] Merge complete - finishing '{recipe.outputItem.itemName}'.");
 
         foreach (GameObject obj in placedObjects)
@@ -185,13 +228,13 @@ public class MergeTable : MonoBehaviour, IInteractable
                 Destroy(placedObjects[i]);
             }
             placedObjects[i] = null;
-            slotFilled[i] = false;
+            placedItems[i] = null;
         }
 
         if (recipe.outputItem != null && recipe.outputItem.worldPrefab != null)
         {
-            GameObject sword = Instantiate(recipe.outputItem.worldPrefab, spawnPos, spawnRot);
-            WorldItem worldItem = sword.GetComponent<WorldItem>();
+            GameObject result = Instantiate(recipe.outputItem.worldPrefab, spawnPos, spawnRot);
+            WorldItem worldItem = result.GetComponent<WorldItem>();
             if (worldItem != null)
             {
                 worldItem.Initialize(recipe.outputItem, recipe.outputAmount);
@@ -206,6 +249,8 @@ public class MergeTable : MonoBehaviour, IInteractable
             Debug.LogWarning("[MergeTable] Output item has no World Prefab assigned - nothing will appear.");
         }
 
+        filledCount = 0;
+        matchedRecipe = null;
         progress = 0f;
         isCompleting = false;
     }

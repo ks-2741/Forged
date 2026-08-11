@@ -3,7 +3,8 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// Testing-only cheat menu. Press P to spawn Iron Ore, O to spawn Copper
-/// Ore, via the assigned ItemSpawnPoint (e.g. the one above your pallet).
+/// Ore, I to spawn Cross Guard, U to spawn Grip, Y to spawn Sharp Blade -
+/// via the assigned ItemSpawnPoint (e.g. the one above your pallet).
 /// Remove this component (or leave it disabled) before shipping.
 /// </summary>
 public class CheatMenu : MonoBehaviour
@@ -14,6 +15,9 @@ public class CheatMenu : MonoBehaviour
     [Header("Items")]
     [SerializeField] private ItemData ironOre;
     [SerializeField] private ItemData copperOre;
+    [SerializeField] private ItemData crossGuard;
+    [SerializeField] private ItemData grip;
+    [SerializeField] private ItemData sharpBlade;
 
     [Header("Settings")]
     [Tooltip("How many pieces to spawn per key press.")]
@@ -35,6 +39,21 @@ public class CheatMenu : MonoBehaviour
         if (keyboard.oKey.wasPressedThisFrame)
         {
             SpawnItem(copperOre);
+        }
+
+        if (keyboard.iKey.wasPressedThisFrame)
+        {
+            SpawnItem(crossGuard);
+        }
+
+        if (keyboard.uKey.wasPressedThisFrame)
+        {
+            SpawnItem(grip);
+        }
+
+        if (keyboard.yKey.wasPressedThisFrame)
+        {
+            SpawnItem(sharpBlade);
         }
     }
 

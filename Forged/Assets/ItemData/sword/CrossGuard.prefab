@@ -12,7 +12,9 @@ GameObject:
   - component: {fileID: 4386554981498615280}
   - component: {fileID: 3682425860766310024}
   - component: {fileID: 7136417505481556493}
-  m_Layer: 0
+  - component: {fileID: 7525439325595385197}
+  - component: {fileID: 6394692279690798928}
+  m_Layer: 8
   m_Name: CrossGuard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 686621959276513503}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.000000029802322, w: 1}
-  m_LocalPosition: {x: 2.741023, y: 0.5328158, z: -0.7693705}
+  m_LocalPosition: {x: 2.4973342, y: 0.53274894, z: -0.31296808}
   m_LocalScale: {x: 0.1174198, y: 0.065498, z: 0.5137452}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -112,3 +114,46 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &7525439325595385197
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686621959276513503}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &6394692279690798928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686621959276513503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ee9bd2d842a9f949bf8608c622960a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  item: {fileID: 11400000, guid: 5b5fe0861351cb6469da38c631d0e224, type: 2}
+  amount: 1
+  gripPoint: {fileID: 0}
+  debugLogging: 1
