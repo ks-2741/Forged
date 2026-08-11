@@ -15,11 +15,16 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private ItemData item;
     [SerializeField] private int amount = 1;
 
+    [Header("Hand Alignment")]
+    [Tooltip("Empty child Transform, placed inside THIS item's own prefab, marking the exact spot that should align to the player's hand anchor when picked up (e.g. the grip of a sword's handle). Fixes positioning when the mesh's import pivot isn't centered. Leave empty to just snap this object's own root to the hand anchor.")]
+    [SerializeField] private Transform gripPoint;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
     public ItemData Item => item;
     public int Amount => amount;
+    public Transform GripPoint => gripPoint;
 
     /// <summary>Called by ItemSpawnPoint right after Instantiate to configure a freshly spawned piece.</summary>
     public void Initialize(ItemData newItem, int newAmount)

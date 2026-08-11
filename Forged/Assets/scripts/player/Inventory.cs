@@ -95,12 +95,61 @@ public class Inventory : MonoBehaviour
         }
 
         Transform t = worldObject.transform;
+        Vector3 worldScaleBefore = t.lossyScale;
+
         t.SetParent(handAnchor, false);
         t.localPosition = Vector3.zero;
         t.localRotation = Quaternion.identity;
 
+        // SetParent keeps localScale's NUMBER unchanged, but since the new
+        // parent (hand anchor) may itself have a non-1 scale, the object's
+        // actual visual size would otherwise silently shrink/grow every time
+        // it's picked up. Explicitly recompute localScale so the object's
+        // real-world size stays exactly what it was before pickup.
+        Vector3 parentScale = handAnchor.lossyScale;
+        t.localScale = new Vector3(
+            parentScale.x != 0f ? worldScaleBefore.x / parentScale.x : worldScaleBefore.x,
+            parentScale.y != 0f ? worldScaleBefore.y / parentScale.y : worldScaleBefore.y,
+            parentScale.z != 0f ? worldScaleBefore.z / parentScale.z : worldScaleBefore.z
+        );
+
+        WorldItem worldItemComp = worldObject.GetComponent<WorldItem>();
+        Transform grip = worldItemComp != null ? worldItemComp.GripPoint : null;
+
+        if (grip != null)
+        {
+            // t is now sitting exactly at the hand anchor's position/rotation.
+            // Only correct POSITION using the grip point's world-space offset -
+            // not rotation, since an unintentionally-oriented grip marker can
+            // twist the whole mesh around that point even though the point
+            // itself still lands correctly.
+            Vector3 posDelta = handAnchor.position - grip.position;
+            t.position += posDelta;
+        }
+
         OnHeldChanged?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// Removes whatever's held from the hand WITHOUT destroying it, and
+    /// returns its GameObject so the caller can take ownership of it (e.g.
+    /// placing it on an anvil). Physics/colliders remain disabled exactly
+    /// as they were while held - the caller is responsible for
+    /// re-enabling anything it needs.
+    /// </summary>
+    public GameObject TakeHeldObject()
+    {
+        if (!IsHolding)
+        {
+            return null;
+        }
+
+        GameObject obj = heldObject;
+        heldItem = null;
+        heldObject = null;
+        OnHeldChanged?.Invoke();
+        return obj;
     }
 
     /// <summary>
@@ -126,6 +175,64 @@ public class Inventory : MonoBehaviour
         heldObject = null;
         OnHeldChanged?.Invoke();
         return item;
+    }
+
+    /// <summary>
+    /// Hands off whatever's currently held to another system (e.g. placing
+    /// it on the anvil) WITHOUT destroying it or restoring its physics -
+    /// the caller takes full ownership and is responsible for what happens
+    /// to the returned GameObject next. Returns null if nothing was held.
+    /// </summary>
+    public GameObject ReleaseHeldObject()
+    {
+        if (!IsHolding)
+        {
+            return null;
+        }
+
+        GameObject obj = heldObject;
+        heldItem = null;
+        heldObject = null;
+        OnHeldChanged?.Invoke();
+        return obj;
+    }
+
+    /// <summary>
+    /// Moves whatever's currently held onto a target slot Transform (e.g.
+    /// an anvil's mount point) - keeps it kinematic/collider-disabled just
+    /// like it was in the hand, but parented elsewhere. Frees the hand.
+    /// Returns the released GameObject, or null if nothing was held.
+    /// </summary>
+    public GameObject ReleaseHeldTo(Transform target)
+    {
+        if (!IsHolding || target == null)
+        {
+            return null;
+        }
+
+        GameObject obj = heldObject;
+
+        if (obj != null)
+        {
+            Transform t = obj.transform;
+            Vector3 worldScaleBefore = t.lossyScale;
+
+            t.SetParent(target, false);
+            t.localPosition = Vector3.zero;
+            t.localRotation = Quaternion.identity;
+
+            Vector3 parentScale = target.lossyScale;
+            t.localScale = new Vector3(
+                parentScale.x != 0f ? worldScaleBefore.x / parentScale.x : worldScaleBefore.x,
+                parentScale.y != 0f ? worldScaleBefore.y / parentScale.y : worldScaleBefore.y,
+                parentScale.z != 0f ? worldScaleBefore.z / parentScale.z : worldScaleBefore.z
+            );
+        }
+
+        heldItem = null;
+        heldObject = null;
+        OnHeldChanged?.Invoke();
+        return obj;
     }
 
     /// <summary>Drops whatever's held back into the world at the hand position, re-enabling its physics.</summary>

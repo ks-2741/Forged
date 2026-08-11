@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
-  m_Name: iron ingot
+  m_Name: Iron sharp blade 1
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: iron Ingot
+  itemName: New Item
   description: 
   icon: {fileID: 0}
-  category: 5
+  category: 0
   maxStackSize: 1
   sellValue: 1
-  worldPrefab: {fileID: 4194615362174986989, guid: dcff975553d6cd140aab9c069e43611c, type: 3}
+  worldPrefab: {fileID: 1379748668122651005, guid: 529274645b741e64bb94cc6f92595346, type: 3}
