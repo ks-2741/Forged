@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
   m_Name: Copper Sword
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: New Item
+  itemName: Copper Sword
   description: 
   icon: {fileID: 0}
   category: 0

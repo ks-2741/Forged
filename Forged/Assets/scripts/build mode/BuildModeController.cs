@@ -55,7 +55,14 @@ public class BuildModeController : MonoBehaviour
             return;
         }
 
-       
+        // Don't allow any build mode input while the crafting menu is open.
+        
+
+        // Don't allow any build mode input while the seller's shop is open.
+        if (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
+        {
+            return;
+        }
 
         // Only allow toggling Build Mode when nothing's currently held, so
         // you can't get stuck carrying something with no way to place it.

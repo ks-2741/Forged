@@ -37,6 +37,11 @@ public class PlayerInteractor : MonoBehaviour
         // re-trigger world interactions behind it.
        
 
+        if (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
+        {
+            return;
+        }
+
         if (UnityEngine.EventSystems.EventSystem.current != null
             && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {

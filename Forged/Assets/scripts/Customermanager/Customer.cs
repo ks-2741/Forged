@@ -1,12 +1,14 @@
 using UnityEngine;
 
+
+
 /// <summary>
 /// Put this on your customer prefab. CustomerManager calls Initialize
 /// right after spawning. Handles walking to its assigned stand slot,
 /// popping up order text once it arrives, waiting (leaving early if it
 /// runs out of patience or night falls), and walking off to despawn.
 /// </summary>
-public class Customer : MonoBehaviour
+public class Customer : MonoBehaviour, IInteractable
 {
     private enum State
     {
@@ -136,6 +138,42 @@ public class Customer : MonoBehaviour
 
         if (debugLogging) Debug.Log($"[Customer] Order for '{desiredItem.itemName}' fulfilled.");
         Leave();
+    }
+
+    public void Interact(GameObject interactor)
+    {
+        if (!IsWaitingForOrder)
+        {
+            if (debugLogging) Debug.Log("[Customer] Not currently waiting on an order.");
+            return;
+        }
+
+        Inventory playerHand = interactor.GetComponent<Inventory>();
+        if (playerHand == null || !playerHand.IsHolding)
+        {
+            if (debugLogging) Debug.Log($"[Customer] You need to be holding '{desiredItem.itemName}' to sell it here.");
+            return;
+        }
+
+        if (playerHand.HeldItem != desiredItem)
+        {
+            if (debugLogging) Debug.Log($"[Customer] That's not what I asked for - I need '{desiredItem.itemName}'.");
+            return;
+        }
+
+        playerHand.ConsumeHeld();
+
+        Currency currency = interactor.GetComponent<Currency>();
+        if (currency != null)
+        {
+            currency.Add(desiredItem.sellValue);
+        }
+        else if (debugLogging)
+        {
+            Debug.LogWarning($"[Customer] '{interactor.name}' has no Currency component - sale completed but no payment given.");
+        }
+
+        FulfillOrder();
     }
 
     /// <summary>Sends the customer walking off to despawn, regardless of current state (unless already leaving).</summary>
