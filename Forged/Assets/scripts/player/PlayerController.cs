@@ -140,8 +140,16 @@ public class PlayerController : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse != null && mouse.leftButton.wasPressedThisFrame && lockCursor && Cursor.lockState != CursorLockMode.Locked)
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // Don't steal the click back to re-lock the cursor while a UI
+            // panel is the reason it's unlocked in the first place - that
+            // panel owns cursor state until it closes itself.
+            bool uiPanelOpen = SellerStation.Instance != null && SellerStation.Instance.IsShopOpen;
+
+            if (!uiPanelOpen)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
     }
 }

@@ -1,8 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// Put this on the seller alongside Placeable. Left-clicking it (via
-/// PlayerInteractor, only works at night) toggles YOUR existing Shop Panel
+/// Put this on the seller prefab alongside Placeable. SellerSpawner calls
+/// Initialize right after spawning it at night, which sends it walking to
+/// its Stand Point before it becomes interactable. On day start it
+/// automatically walks off to the despawn point and destroys itself.
+/// Left-clicking it (via PlayerInteractor, only once it's arrived at its
+/// stand point, and only at night) toggles YOUR existing Shop Panel
 /// open/closed. Wire your UI buttons directly to this component's public
 /// methods in their OnClick() list:
 ///   - Buy buttons: call BuyItem(offer), with the specific ShopOffer asset
@@ -12,7 +16,14 @@ using UnityEngine;
 /// </summary>
 public class SellerStation : MonoBehaviour, IInteractable
 {
-    /// <summary>So PlayerInteractor/BuildModeController can check if the shop is open, same pattern as other UI panels.</summary>
+    private enum State
+    {
+        Entering,
+        Standing,
+        Leaving
+    }
+
+    /// <summary>So PlayerInteractor/BuildModeController/PlayerController can check if the shop is open, same pattern as other UI panels.</summary>
     public static SellerStation Instance { get; private set; }
 
     [Header("References")]
@@ -22,13 +33,21 @@ public class SellerStation : MonoBehaviour, IInteractable
     [Tooltip("Where purchased items physically appear (e.g. a small delivery tray next to the seller).")]
     [SerializeField] private ItemSpawnPoint deliveryPoint;
 
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed = 2.5f;
+    [SerializeField] private float arriveThreshold = 0.15f;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
     private Currency activeCurrency;
     private Inventory activeHand;
+    private Transform standPoint;
+    private Transform despawnPoint;
+    private State state;
 
     public bool IsShopOpen { get; private set; }
+    public bool HasArrived => state == State.Standing;
 
     private void Awake()
     {
@@ -39,11 +58,115 @@ public class SellerStation : MonoBehaviour, IInteractable
         }
     }
 
+    private void OnEnable()
+    {
+        if (dayNightCycle != null)
+        {
+            dayNightCycle.onDayStart.AddListener(HandleDayStart);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (dayNightCycle != null)
+        {
+            dayNightCycle.onDayStart.RemoveListener(HandleDayStart);
+        }
+    }
+
+    /// <summary>Called by SellerSpawner right after Instantiate.</summary>
+    public void Initialize(Transform standTarget, Transform despawnTarget)
+    {
+        standPoint = standTarget;
+        despawnPoint = despawnTarget;
+        state = State.Entering;
+    }
+
+    private void Update()
+    {
+        switch (state)
+        {
+            case State.Entering:
+                if (standPoint == null)
+                {
+                    state = State.Standing;
+                    break;
+                }
+                MoveTowards(standPoint.position);
+                if (HasArrivedAt(standPoint.position))
+                {
+                    state = State.Standing;
+                    if (debugLogging) Debug.Log("[SellerStation] Arrived at stand point - open for business.");
+                }
+                break;
+
+            case State.Leaving:
+                if (despawnPoint == null)
+                {
+                    Despawn();
+                    break;
+                }
+                MoveTowards(despawnPoint.position);
+                if (HasArrivedAt(despawnPoint.position))
+                {
+                    Despawn();
+                }
+                break;
+        }
+    }
+
+    private void MoveTowards(Vector3 target)
+    {
+        Vector3 flatTarget = new Vector3(target.x, transform.position.y, target.z);
+        transform.position = Vector3.MoveTowards(transform.position, flatTarget, moveSpeed * Time.deltaTime);
+
+        Vector3 direction = flatTarget - transform.position;
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+        }
+    }
+
+    private bool HasArrivedAt(Vector3 target)
+    {
+        Vector3 flatTarget = new Vector3(target.x, transform.position.y, target.z);
+        return Vector3.Distance(transform.position, flatTarget) <= arriveThreshold;
+    }
+
+    private void HandleDayStart()
+    {
+        if (state == State.Leaving)
+        {
+            return;
+        }
+
+        if (debugLogging) Debug.Log("[SellerStation] Day started - packing up and leaving.");
+
+        if (IsShopOpen)
+        {
+            CloseShop();
+        }
+
+        state = State.Leaving;
+    }
+
+    private void Despawn()
+    {
+        if (debugLogging) Debug.Log("[SellerStation] Despawned.");
+        Destroy(gameObject);
+    }
+
     public void Interact(GameObject interactor)
     {
         if (dayNightCycle == null || !dayNightCycle.IsNight)
         {
             if (debugLogging) Debug.Log("[SellerStation] The seller isn't here during the day.");
+            return;
+        }
+
+        if (!HasArrived)
+        {
+            if (debugLogging) Debug.Log("[SellerStation] The seller hasn't reached their stand yet.");
             return;
         }
 
