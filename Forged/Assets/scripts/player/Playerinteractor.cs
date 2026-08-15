@@ -32,11 +32,9 @@ public class PlayerInteractor : MonoBehaviour
             return;
         }
 
-        // Don't raycast into the world while the crafting menu (or any UI
-        // panel with cursor unlocked) is open - clicks should hit UI, not
-        // re-trigger world interactions behind it.
-       
-
+        // Don't raycast into the world while a UI panel with cursor unlocked
+        // is open - clicks should hit UI, not re-trigger world interactions
+        // behind it.
         if (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
         {
             return;

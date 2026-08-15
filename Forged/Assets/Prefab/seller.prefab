@@ -128,9 +128,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3c198800cefd9546a0dc8176dfa1012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SellerStation
-  dayNightCycle: {fileID: 0}
-  shopPanel: {fileID: 0}
-  deliveryPoint: {fileID: 0}
+  dayNightCycle: {fileID: 4687613213321462567, guid: 680d8f3564572db4daa083735cb8e0a5, type: 3}
+  shopPanel: {fileID: 8520733603304364106, guid: d8a8b3ed47d48c84e96915fe30ae8267, type: 3}
+  deliveryPoint: {fileID: 6556638875992722173, guid: 46f6225b19c310845b846e6a13858c3f, type: 3}
   moveSpeed: 2.5
   arriveThreshold: 0.15
   debugLogging: 1

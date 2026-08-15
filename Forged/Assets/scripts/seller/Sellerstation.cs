@@ -40,8 +40,7 @@ public class SellerStation : MonoBehaviour, IInteractable
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
-    private Currency activeCurrency;
-    private Inventory activeHand;
+    private GameObject activePlayer;
     private Transform standPoint;
     private Transform despawnPoint;
     private State state;
@@ -176,9 +175,7 @@ public class SellerStation : MonoBehaviour, IInteractable
             return;
         }
 
-        activeCurrency = interactor.GetComponent<Currency>();
-        activeHand = interactor.GetComponent<Inventory>();
-
+        activePlayer = interactor;
         OpenShop();
     }
 
@@ -213,13 +210,20 @@ public class SellerStation : MonoBehaviour, IInteractable
             return;
         }
 
-        if (activeCurrency == null)
+        if (activePlayer == null)
+        {
+            if (debugLogging) Debug.LogWarning("[SellerStation] No player reference - shop wasn't opened properly.");
+            return;
+        }
+
+        Currency currency = activePlayer.GetComponent<Currency>();
+        if (currency == null)
         {
             if (debugLogging) Debug.LogWarning("[SellerStation] No Currency found on the player.");
             return;
         }
 
-        if (!activeCurrency.TrySpend(offer.price))
+        if (!currency.TrySpend(offer.price))
         {
             if (debugLogging) Debug.Log($"[SellerStation] Can't afford '{offer.item.itemName}' ({offer.price}g).");
             return;
@@ -240,24 +244,32 @@ public class SellerStation : MonoBehaviour, IInteractable
     /// <summary>Wire a Sell button directly to this - no argument needed, sells whatever's currently held.</summary>
     public void SellHeldItem()
     {
-        if (activeHand == null || !activeHand.IsHolding)
+        if (activePlayer == null)
+        {
+            if (debugLogging) Debug.LogWarning("[SellerStation] No player reference - shop wasn't opened properly.");
+            return;
+        }
+
+        Inventory hand = activePlayer.GetComponent<Inventory>();
+        if (hand == null || !hand.IsHolding)
         {
             if (debugLogging) Debug.Log("[SellerStation] Not holding anything to sell.");
             return;
         }
 
-        ItemData item = activeHand.HeldItem;
+        ItemData item = hand.HeldItem;
         if (item.sellValue <= 0)
         {
             if (debugLogging) Debug.Log($"[SellerStation] '{item.itemName}' can't be sold here.");
             return;
         }
 
-        activeHand.ConsumeHeld();
+        hand.ConsumeHeld();
 
-        if (activeCurrency != null)
+        Currency currency = activePlayer.GetComponent<Currency>();
+        if (currency != null)
         {
-            activeCurrency.Add(item.sellValue);
+            currency.Add(item.sellValue);
         }
 
         if (debugLogging) Debug.Log($"[SellerStation] Sold '{item.itemName}' for {item.sellValue}g.");

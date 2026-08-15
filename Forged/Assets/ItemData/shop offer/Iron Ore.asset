@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Iron Ore
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
-  price: 3
+  price: 2

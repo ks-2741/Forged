@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Iron Sword
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
-  price: 7
+  price: 8

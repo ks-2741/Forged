@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Copper Sword
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: ade9f27ea83637649865b544d9b8a703, type: 2}
-  price: 6
+  price: 7
