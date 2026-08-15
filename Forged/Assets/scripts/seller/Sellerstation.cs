@@ -27,11 +27,10 @@ public class SellerStation : MonoBehaviour, IInteractable
     public static SellerStation Instance { get; private set; }
 
     [Header("References")]
-    [SerializeField] private DayNightCycle dayNightCycle;
-    [Tooltip("Your existing shop UI panel - shown/hidden by this script.")]
-    [SerializeField] private GameObject shopPanel;
-    [Tooltip("Where purchased items physically appear (e.g. a small delivery tray next to the seller).")]
-    [SerializeField] private ItemSpawnPoint deliveryPoint;
+    [Tooltip("Set by SellerSpawner at spawn time - not serialized here, so the prefab itself never stores scene references.")]
+    private DayNightCycle dayNightCycle;
+    private GameObject shopPanel;
+    private ItemSpawnPoint deliveryPoint;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -51,34 +50,46 @@ public class SellerStation : MonoBehaviour, IInteractable
     private void Awake()
     {
         Instance = this;
-        if (shopPanel != null)
-        {
-            shopPanel.SetActive(false);
-        }
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
-        if (dayNightCycle != null)
+        if (Instance == this)
         {
-            dayNightCycle.onDayStart.AddListener(HandleDayStart);
+            Instance = null;
         }
-    }
 
-    private void OnDisable()
-    {
         if (dayNightCycle != null)
         {
             dayNightCycle.onDayStart.RemoveListener(HandleDayStart);
         }
     }
 
-    /// <summary>Called by SellerSpawner right after Instantiate.</summary>
-    public void Initialize(Transform standTarget, Transform despawnTarget)
+    /// <summary>
+    /// Called by SellerSpawner right after Instantiate. Every scene-specific
+    /// reference (DayNightCycle, the shop UI panel, the delivery point) is
+    /// handed in here rather than serialized on the prefab, so the prefab
+    /// asset itself never stores a link to something that only exists in
+    /// one particular scene.
+    /// </summary>
+    public void Initialize(Transform standTarget, Transform despawnTarget, DayNightCycle dayNight, GameObject panel, ItemSpawnPoint delivery)
     {
         standPoint = standTarget;
         despawnPoint = despawnTarget;
+        dayNightCycle = dayNight;
+        shopPanel = panel;
+        deliveryPoint = delivery;
         state = State.Entering;
+
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+
+        if (dayNightCycle != null)
+        {
+            dayNightCycle.onDayStart.AddListener(HandleDayStart);
+        }
     }
 
     private void Update()
