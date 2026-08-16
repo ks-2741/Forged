@@ -18,4 +18,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cd13a09e94f9ca2408970575a5f588e9, type: 2}
   outputItem: {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
   outputAmount: 1
-  craftTime: 3
+  craftTime: 5
