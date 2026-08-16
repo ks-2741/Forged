@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -14,7 +15,17 @@ using UnityEngine;
 /// </summary>
 public class ShopUIManager : MonoBehaviour
 {
+    [Serializable]
+    private class OfferButton
+    {
+        public GameObject buttonObject;
+        public ShopOffer offer;
+    }
+
     public static ShopUIManager Instance { get; private set; }
+
+    [Header("Offer Visibility")]
+    [SerializeField] private OfferButton[] offerButtons;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
@@ -27,6 +38,12 @@ public class ShopUIManager : MonoBehaviour
     /// <summary>Wire Buy buttons here (with the ShopOffer assigned per-button) instead of directly to SellerStation.</summary>
     public void BuyItem(ShopOffer offer)
     {
+        if (!IsOfferUnlocked(offer))
+        {
+            if (debugLogging) Debug.Log($"[ShopUIManager] '{offer.item.itemName}' is locked behind '{offer.requiredBlueprint.blueprintName}'.");
+            return;
+        }
+
         if (SellerStation.Instance == null)
         {
             if (debugLogging) Debug.Log("[ShopUIManager] No seller here right now.");
@@ -55,5 +72,33 @@ public class ShopUIManager : MonoBehaviour
         {
             SellerStation.Instance.CloseShop();
         }
+    }
+
+    public void RefreshOfferVisibility()
+    {
+        if (offerButtons == null)
+        {
+            return;
+        }
+
+        foreach (OfferButton entry in offerButtons)
+        {
+            if (entry == null || entry.buttonObject == null)
+            {
+                continue;
+            }
+
+            entry.buttonObject.SetActive(IsOfferUnlocked(entry.offer));
+        }
+    }
+
+    private static bool IsOfferUnlocked(ShopOffer offer)
+    {
+        if (offer == null || offer.requiredBlueprint == null)
+        {
+            return true;
+        }
+
+        return BlueprintManager.Instance != null && BlueprintManager.Instance.IsUnlocked(offer.requiredBlueprint);
     }
 }

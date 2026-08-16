@@ -221,6 +221,12 @@ public class SellerStation : MonoBehaviour, IInteractable
             return;
         }
 
+        if (offer.requiredBlueprint != null && (BlueprintManager.Instance == null || !BlueprintManager.Instance.IsUnlocked(offer.requiredBlueprint)))
+        {
+            if (debugLogging) Debug.Log($"[SellerStation] '{offer.item.itemName}' isn't available yet - learn '{offer.requiredBlueprint.blueprintName}' from the blueprint book first.");
+            return;
+        }
+
         if (activePlayer == null)
         {
             if (debugLogging) Debug.LogWarning("[SellerStation] No player reference - shop wasn't opened properly.");

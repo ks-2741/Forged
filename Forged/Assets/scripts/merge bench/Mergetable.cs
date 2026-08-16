@@ -243,6 +243,11 @@ public class MergeTable : MonoBehaviour, IInteractable
             {
                 Debug.LogWarning($"[MergeTable] '{recipe.outputItem.itemName}''s World Prefab has no WorldItem component.");
             }
+
+            if (CraftingStatsTracker.Instance != null)
+            {
+                CraftingStatsTracker.Instance.RecordCrafted(recipe.outputItem, recipe.outputAmount);
+            }
         }
         else if (debugLogging)
         {

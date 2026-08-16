@@ -40,6 +40,11 @@ public class PlayerInteractor : MonoBehaviour
             return;
         }
 
+        if (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen)
+        {
+            return;
+        }
+
         if (UnityEngine.EventSystems.EventSystem.current != null
             && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {

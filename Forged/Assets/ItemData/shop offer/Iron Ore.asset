@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
   price: 2
+  requiredBlueprint: {fileID: 11400000, guid: 906e7572b7145284c8787a43bdfe5ccc, type: 2}

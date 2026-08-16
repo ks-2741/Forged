@@ -10,4 +10,7 @@ public class ShopOffer : ScriptableObject
     public ItemData item;
     [Tooltip("Cost in gold to buy one of this item.")]
     public int price = 1;
+
+    [Tooltip("If set, this offer can't be bought until this Blueprint is learned. Leave empty to always be purchasable.")]
+    public Blueprint requiredBlueprint;
 }
