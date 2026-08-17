@@ -12,7 +12,8 @@ public class MergeTable : MonoBehaviour, IInteractable
     public class ItemSlot
     {
         public Transform slot;
-        public ItemData requiredItem;
+        [Tooltip("Any ONE of these items can go in this slot (e.g. Copper Sharp Blade OR Iron Sharp Blade in the same 'blade' slot). Usually just one entry, but can be more when a slot should accept multiple tiers.")]
+        public List<ItemData> acceptedItems = new List<ItemData>();
     }
 
     [Header("Slots")]
@@ -106,7 +107,7 @@ public class MergeTable : MonoBehaviour, IInteractable
         if (slotIndex == -1)
         {
             if (debugLogging)
-                Debug.Log($"[MergeTable] No slot for {heldItem.itemName}.");
+                Debug.Log($"[MergeTable] No slot accepts {heldItem.itemName}.");
 
             return;
         }
@@ -114,7 +115,7 @@ public class MergeTable : MonoBehaviour, IInteractable
         if (placedObjects[slotIndex] != null)
         {
             if (debugLogging)
-                Debug.Log($"[MergeTable] {heldItem.itemName} slot is occupied.");
+                Debug.Log($"[MergeTable] That slot is already occupied.");
 
             return;
         }
@@ -130,7 +131,7 @@ public class MergeTable : MonoBehaviour, IInteractable
         filledCount++;
 
         if (debugLogging)
-            Debug.Log($"[MergeTable] Placed {heldItem.itemName}.");
+            Debug.Log($"[MergeTable] Placed {heldItem.itemName} in slot {slotIndex}.");
 
         if (AllSlotsFilled)
         {
@@ -148,12 +149,24 @@ public class MergeTable : MonoBehaviour, IInteractable
         }
     }
 
+    /// <summary>
+    /// Finds the first EMPTY slot whose accepted-items list contains this
+    /// item - not just any slot that could theoretically accept it, so two
+    /// slots both accepting the same item won't collide with each other.
+    /// </summary>
     private int FindSlot(ItemData item)
     {
         for (int i = 0; i < itemSlots.Length; i++)
         {
-            if (itemSlots[i].requiredItem == item)
+            if (placedObjects[i] != null)
+            {
+                continue; // already occupied, skip
+            }
+
+            if (itemSlots[i].acceptedItems != null && itemSlots[i].acceptedItems.Contains(item))
+            {
                 return i;
+            }
         }
 
         return -1;
