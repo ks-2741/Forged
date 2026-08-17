@@ -53,6 +53,48 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    /// <summary>Full day+night length in seconds - one clock hand rotation equals this.</summary>
+    public float TotalCycleDuration => dayDuration + nightDuration;
+
+    /// <summary>0-1 progress through the FULL day+night cycle (not just the current phase) - Day always comes first in this ordering.</summary>
+    public float CycleProgress01
+    {
+        get
+        {
+            if (TotalCycleDuration <= 0f)
+            {
+                return 0f;
+            }
+
+            float elapsed = IsDay ? currentPhaseTime : dayDuration + currentPhaseTime;
+            return Mathf.Repeat(elapsed / TotalCycleDuration, 1f);
+        }
+    }
+
+    /// <summary>
+    /// Fast-forwards the clock by an arbitrary number of seconds, correctly
+    /// rolling over one or more phase changes if the jump is large enough
+    /// (e.g. skipping a full hour near the end of a phase). Used by the
+    /// clock's click-to-skip.
+    /// </summary>
+    public void AdvanceTime(float seconds)
+    {
+        if (seconds <= 0f)
+        {
+            return;
+        }
+
+        currentPhaseTime += seconds;
+
+        float phaseDuration = IsDay ? dayDuration : nightDuration;
+        while (phaseDuration > 0f && currentPhaseTime >= phaseDuration)
+        {
+            currentPhaseTime -= phaseDuration;
+            TogglePhase();
+            phaseDuration = IsDay ? dayDuration : nightDuration;
+        }
+    }
+
     private void Awake()
     {
         if (skyVolume == null)

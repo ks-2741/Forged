@@ -195,6 +195,19 @@ public class SellerStation : MonoBehaviour, IInteractable
         if (shopPanel != null)
         {
             shopPanel.SetActive(true);
+
+            // Explicitly refresh every gate, including ones currently hidden.
+            // A hidden button's own OnEnable can never fire again on its own
+            // once it's inactive (Unity only calls OnEnable when an object's
+            // OWN active flag flips false->true, not just when its parent
+            // panel reopens) - so the check has to be driven from here.
+            ShopOfferGate[] gates = shopPanel.GetComponentsInChildren<ShopOfferGate>(true);
+            foreach (ShopOfferGate gate in gates)
+            {
+                gate.Refresh();
+            }
+
+            if (debugLogging) Debug.Log($"[SellerStation] Refreshed {gates.Length} ShopOfferGate(s) on open.");
         }
 
         IsShopOpen = true;

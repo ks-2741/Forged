@@ -19,6 +19,7 @@ public class BlueprintManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        if (debugLogging) Debug.Log($"[BlueprintManager] Awake - this instance ID = {GetInstanceID()}.");
     }
 
     public bool IsUnlocked(Blueprint blueprint)
@@ -52,7 +53,7 @@ public class BlueprintManager : MonoBehaviour
         }
 
         unlocked.Add(blueprint);
-        if (debugLogging) Debug.Log($"[BlueprintManager] Learned '{blueprint.blueprintName}'.");
+        if (debugLogging) Debug.Log($"[BlueprintManager] Learned '{blueprint.blueprintName}' (instance ID {blueprint.GetInstanceID()}) on manager instance {GetInstanceID()}. Total learned: {unlocked.Count}.");
         return true;
     }
 }

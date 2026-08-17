@@ -16,17 +16,49 @@ public class ShopOfferGate : MonoBehaviour
     [Tooltip("What to show/hide. Leave empty to use this GameObject itself.")]
     [SerializeField] private GameObject target;
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLogging = true;
+
     private void OnEnable()
     {
+        if (debugLogging) Debug.Log($"[ShopOfferGate] '{name}' OnEnable fired - refreshing.");
         Refresh();
     }
 
     public void Refresh()
     {
-        bool unlocked = requiredBlueprint == null
-            || (BlueprintManager.Instance != null && BlueprintManager.Instance.IsUnlocked(requiredBlueprint));
+        if (requiredBlueprint == null)
+        {
+            if (debugLogging) Debug.Log($"[ShopOfferGate] '{name}' has no Required Blueprint assigned - always shown.");
+            SetActive(true);
+            return;
+        }
 
+        if (BlueprintManager.Instance == null)
+        {
+            if (debugLogging) Debug.LogWarning($"[ShopOfferGate] '{name}': BlueprintManager.Instance is NULL. Is there a BlueprintManager in the scene, and only one?");
+            SetActive(false);
+            return;
+        }
+
+        bool unlocked = BlueprintManager.Instance.IsUnlocked(requiredBlueprint);
+
+        if (debugLogging)
+        {
+            Debug.Log($"[ShopOfferGate] '{name}' checking blueprint '{requiredBlueprint.blueprintName}' " +
+                      $"(instance ID {requiredBlueprint.GetInstanceID()}) against BlueprintManager " +
+                      $"(instance ID {BlueprintManager.Instance.GetInstanceID()}) -> unlocked = {unlocked}");
+        }
+
+        SetActive(unlocked);
+    }
+
+    private void SetActive(bool active)
+    {
         GameObject toToggle = target != null ? target : gameObject;
-        toToggle.SetActive(unlocked);
+
+        if (debugLogging) Debug.Log($"[ShopOfferGate] '{name}' setting '{toToggle.name}' active = {active}.");
+
+        toToggle.SetActive(active);
     }
 }
