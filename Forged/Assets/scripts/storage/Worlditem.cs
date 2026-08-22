@@ -26,6 +26,23 @@ public class WorldItem : MonoBehaviour, IInteractable
     public int Amount => amount;
     public Transform GripPoint => gripPoint;
 
+    private IInteractable mountedHandler;
+
+    /// <summary>
+    /// Called by DisplayedItem or MoldSlotItem when this object gets
+    /// mounted somewhere with its own click behavior. While set, Interact()
+    /// forwards here instead of doing its own pickup - this avoids having
+    /// two different IInteractable behaviors competing on the same object
+    /// (GetComponentInParent&lt;IInteractable&gt;() can only ever resolve
+    /// to one of them, and WorldItem being on the prefab first means it
+    /// would otherwise always win, silently breaking the other logic).
+    /// Pass null to clear it (e.g. once retrieved back into the hand).
+    /// </summary>
+    public void SetMountedHandler(IInteractable handler)
+    {
+        mountedHandler = handler;
+    }
+
     /// <summary>Called by ItemSpawnPoint right after Instantiate to configure a freshly spawned piece.</summary>
     public void Initialize(ItemData newItem, int newAmount)
     {
@@ -35,6 +52,12 @@ public class WorldItem : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
+        if (mountedHandler != null)
+        {
+            mountedHandler.Interact(interactor);
+            return;
+        }
+
         if (item == null)
         {
             if (debugLogging) Debug.LogWarning($"[WorldItem] '{name}' has no ItemData assigned - nothing to pick up.");

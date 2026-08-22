@@ -19,4 +19,8 @@ public class CraftingRecipe : ScriptableObject
     [Header("Timing")]
     [Tooltip("Seconds it takes to complete this craft.")]
     public float craftTime = 3f;
+
+    [Header("Mold (Furnace only)")]
+    [Tooltip("Leave empty for recipes that don't care about a mold. If set, this recipe only matches when this exact mold is currently placed in the furnace's mold slot.")]
+    public ItemData requiredMold;
 }

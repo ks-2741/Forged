@@ -98,6 +98,16 @@ public class DisplayWall : MonoBehaviour, IInteractable
         }
         displayed.Setup(this, slotIndex);
 
+        // Make WorldItem forward clicks to DisplayedItem instead of doing
+        // its own pickup - without this, WorldItem (already on the prefab)
+        // would silently win over DisplayedItem for every click, since only
+        // one IInteractable can ever be resolved on a given object.
+        WorldItem placedWorldItem = placed.GetComponent<WorldItem>();
+        if (placedWorldItem != null)
+        {
+            placedWorldItem.SetMountedHandler(displayed);
+        }
+
         slotObjects[slotIndex] = placed;
 
         if (debugLogging)
@@ -141,6 +151,8 @@ public class DisplayWall : MonoBehaviour, IInteractable
         {
             if (debugLogging) Debug.Log($"[DisplayWall] Clearing slot {index} (was '{obj.name}', instance ID {obj.GetInstanceID()}).");
             slotObjects[index] = null;
+
+            worldItem.SetMountedHandler(null);
 
             DisplayedItem displayed = obj.GetComponent<DisplayedItem>();
             if (displayed != null)
