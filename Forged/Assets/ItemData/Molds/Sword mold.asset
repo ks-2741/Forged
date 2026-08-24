@@ -16,6 +16,6 @@ MonoBehaviour:
   description: 
   icon: {fileID: 0}
   category: 0
-  maxStackSize: 99
+  maxStackSize: 1
   sellValue: 1
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 8918207647397034, guid: 4f7b560b10346fb408c131918605f3c1, type: 3}

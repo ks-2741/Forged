@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
   m_Name: Spear mold
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: New Item
+  itemName: spear mold
   description: 
   icon: {fileID: 0}
-  category: 0
-  maxStackSize: 99
+  category: 2
+  maxStackSize: 1
   sellValue: 1
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 5952703349561743047, guid: ed0047dec04ba6c4e9cd3e7dc8ef228c, type: 3}

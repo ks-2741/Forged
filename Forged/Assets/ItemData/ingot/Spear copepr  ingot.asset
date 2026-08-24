@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: spear copper ingot
   description: 
   icon: {fileID: 0}
-  category: 5
+  category: 1
   maxStackSize: 1
   sellValue: 1
   worldPrefab: {fileID: 7259397153349483540, guid: 86b0867138a73a74d8f0879820657c90, type: 3}
