@@ -24,6 +24,9 @@ public class CraftingStation : MonoBehaviour, IInteractable
     [SerializeField] private List<ItemData> compatibleMolds = new List<ItemData>();
     [Tooltip("Where the mold sits once placed.")]
     [SerializeField] private Transform moldSlot;
+    [Tooltip("Your existing invisible/ghost mold object, already positioned at the mold slot. This script only enables/disables it - shown while the player looks at the furnace holding a compatible mold and the slot is empty.")]
+    [SerializeField] private GameObject moldPreview;
+    [SerializeField] private float lookRange = 8f;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
@@ -40,6 +43,45 @@ public class CraftingStation : MonoBehaviour, IInteractable
 
     public bool HasMold => currentMold != null;
     public ItemData CurrentMold => currentMold;
+
+    private void Update()
+    {
+        UpdateMoldPreview();
+    }
+
+    private void UpdateMoldPreview()
+    {
+        if (moldPreview == null)
+        {
+            return;
+        }
+
+        bool shouldShow = false;
+
+        if (!HasMold)
+        {
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+                bool looking = Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.transform.IsChildOf(transform);
+
+                if (looking)
+                {
+                    Inventory playerHand = cam.GetComponentInParent<Inventory>();
+                    if (playerHand != null && playerHand.IsHolding && compatibleMolds.Contains(playerHand.HeldItem))
+                    {
+                        shouldShow = true;
+                    }
+                }
+            }
+        }
+
+        if (moldPreview.activeSelf != shouldShow)
+        {
+            moldPreview.SetActive(shouldShow);
+        }
+    }
 
     public void Interact(GameObject interactor)
     {

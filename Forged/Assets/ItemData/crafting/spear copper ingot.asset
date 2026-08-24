@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6e05dc7a93f16246a6e25ea3cc4f775, type: 3}
   m_Name: spear copper ingot
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
-  inputItem: {fileID: 0}
+  inputItem: {fileID: 11400000, guid: cdcaa928ed4f707488fbd27677ff582e, type: 2}
   inputAmount: 1
-  outputItem: {fileID: 0}
+  outputItem: {fileID: 11400000, guid: 2a2f4c31777cb344ebbe45d67a0f57a1, type: 2}
   outputAmount: 1
   craftTime: 3
-  requiredMold: {fileID: 0}
+  requiredMold: {fileID: 11400000, guid: c8c837aa94fd26a4bac4280cc0528703, type: 2}

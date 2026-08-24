@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
-  m_Name: spear finisehd
+  m_Name: spear tip Copper
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: copper spear
+  itemName: Spear tip copper
   description: 
   icon: {fileID: 0}
   category: 4
   maxStackSize: 1
-  sellValue: 9
-  worldPrefab: {fileID: 1891534124568625214, guid: 83740cc08e45a8946ad6bd4640d425c2, type: 3}
+  sellValue: 1
+  worldPrefab: {fileID: 5785562571422894863, guid: 5b69910df3b9523489da04d8d88051dc, type: 3}

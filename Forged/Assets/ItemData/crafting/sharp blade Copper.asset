@@ -17,3 +17,4 @@ MonoBehaviour:
   outputItem: {fileID: 11400000, guid: 9cc0be12724c0ff41810558180521c51, type: 2}
   outputAmount: 1
   craftTime: 3
+  requiredMold: {fileID: 0}

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
-  m_Name: spear finisehd
+  m_Name: Sword mold
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: copper spear
+  itemName: New Item
   description: 
   icon: {fileID: 0}
-  category: 4
-  maxStackSize: 1
-  sellValue: 9
-  worldPrefab: {fileID: 1891534124568625214, guid: 83740cc08e45a8946ad6bd4640d425c2, type: 3}
+  category: 0
+  maxStackSize: 99
+  sellValue: 1
+  worldPrefab: {fileID: 0}
