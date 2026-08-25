@@ -25,15 +25,24 @@ public class CustomerManager : MonoBehaviour
     [SerializeField] private float maxSpawnInterval = 20f;
     [SerializeField] private int maxActiveCustomers = 3;
 
+    [System.Serializable]
+    public class OrderOption
+    {
+        public ItemData item;
+        [Tooltip("Leave EMPTY for base-tier items customers can always order (e.g. copper gear). If set, this item is only offered as an order once BlueprintManager reports it as unlocked.")]
+        public Blueprint requiredBlueprint;
+    }
+
     [Header("Orders")]
-    [Tooltip("Possible weapons a customer might order. One is picked at random per customer.")]
-    [SerializeField] private List<ItemData> possibleOrders = new List<ItemData>();
+    [Tooltip("Possible weapons a customer might order. One is picked at random per customer, filtered down to only items whose Required Blueprint (if any) is currently unlocked.")]
+    [SerializeField] private List<OrderOption> possibleOrders = new List<OrderOption>();
 
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
     private bool[] slotOccupied;
     private readonly List<Customer> activeCustomers = new List<Customer>();
+    private readonly List<ItemData> availableOrdersScratch = new List<ItemData>();
     private float spawnTimer;
 
     private void Awake()
@@ -105,6 +114,13 @@ public class CustomerManager : MonoBehaviour
             return;
         }
 
+        RefreshAvailableOrders();
+        if (availableOrdersScratch.Count == 0)
+        {
+            if (debugLogging) Debug.Log("[CustomerManager] No unlocked items available to order yet - skipping spawn.");
+            return;
+        }
+
         GameObject obj = Instantiate(customerPrefab, spawnPoint.position, spawnPoint.rotation);
         Customer customer = obj.GetComponent<Customer>();
         if (customer == null)
@@ -114,13 +130,40 @@ public class CustomerManager : MonoBehaviour
             return;
         }
 
-        ItemData order = possibleOrders[Random.Range(0, possibleOrders.Count)];
+        ItemData order = availableOrdersScratch[Random.Range(0, availableOrdersScratch.Count)];
 
         slotOccupied[slotIndex] = true;
         activeCustomers.Add(customer);
         customer.Initialize(this, standSlots[slotIndex], despawnPoint, order);
 
         if (debugLogging) Debug.Log($"[CustomerManager] Spawned customer ordering '{order.itemName}' at slot {slotIndex}.");
+    }
+
+    /// <summary>
+    /// Rebuilds availableOrdersScratch with only the items from
+    /// possibleOrders that are currently orderable: either ungated
+    /// (Required Blueprint left empty) or their Required Blueprint is
+    /// unlocked according to BlueprintManager.
+    /// </summary>
+    private void RefreshAvailableOrders()
+    {
+        availableOrdersScratch.Clear();
+
+        foreach (OrderOption option in possibleOrders)
+        {
+            if (option == null || option.item == null)
+            {
+                continue;
+            }
+
+            bool unlocked = option.requiredBlueprint == null
+                || (BlueprintManager.Instance != null && BlueprintManager.Instance.IsUnlocked(option.requiredBlueprint));
+
+            if (unlocked)
+            {
+                availableOrdersScratch.Add(option.item);
+            }
+        }
     }
 
     private int FindFreeSlot()

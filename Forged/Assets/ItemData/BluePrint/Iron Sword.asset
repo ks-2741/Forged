@@ -15,5 +15,5 @@ MonoBehaviour:
   blueprintName: Iron Sword
   description: 
   requiredCraftedItem: {fileID: 11400000, guid: ade9f27ea83637649865b544d9b8a703, type: 2}
-  requiredCraftedAmount: 5
-  goldCost: 10
+  requiredCraftedAmount: 1
+  goldCost: 1

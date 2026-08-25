@@ -65,6 +65,25 @@ public class DisplayedItem : MonoBehaviour, IInteractable
         SetFlashing(looking);
     }
 
+    private void OnDestroy()
+    {
+        // If this gets destroyed (e.g. item retrieved) while mid-flash, make
+        // sure the material is left in its ORIGINAL color, not stuck white -
+        // Destroy() doesn't otherwise give us a chance to clean this up.
+        if (materialRefs == null)
+        {
+            return;
+        }
+
+        foreach (MatColorRef entry in materialRefs)
+        {
+            if (entry.material != null)
+            {
+                entry.material.SetColor(entry.propertyName, entry.originalColor);
+            }
+        }
+    }
+
     private void SetFlashing(bool on)
     {
         if (isFlashing == on || materialRefs == null)

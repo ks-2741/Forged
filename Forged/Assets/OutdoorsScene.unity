@@ -622,15 +622,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 93748737}
   m_LocalRotation: {x: -0, y: -0.7071069, z: -0, w: -0.7071067}
-  m_LocalPosition: {x: 0, y: 0, z: -278.11}
-  m_LocalScale: {x: 0.0031550194, y: 0.0031550194, z: 0.0031550194}
+  m_LocalPosition: {x: 0, y: 0, z: -278.156}
+  m_LocalScale: {x: 0.0027696851, y: 0.0027696851, z: 0.0027696851}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2030071790}
   m_LocalEulerAnglesHint: {x: 0, y: -270, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1841.2758, y: -1076.71}
+  m_AnchoredPosition: {x: -1841.2758, y: -1076.5115}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &93748739
@@ -653,20 +653,28 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Buy ore from the guy who comes to the shop. Then place the ore in the
-    Furnace \u2192 Anvil \u2192 Grindstone \u2192 Merge Table, in that order.\n\nThe
-    white desk is for swords. Buy a crossguard and a grip, then place them on the
-    table with your finished blade.\n\nFor spears, buy a spear pole and spear butt
-    and combine them with the spearhead on the table .\n\nControls\nB \u2013 Enter
-    Build Mode, where you can move objects around.\nB again \u2013 Exit Build Mode.\nQ
-    / E \u2013 Rotate objects while in Build Mode.\nServe customers with left click
-    to earn money.\nHold Left Click to forge items.\n\nThere are two moulds on the
-    shelf:\n\nOne mould has a spearhead shape.\nThe other mould is blank.\n\nTo make
-    a sword, use the blank mould.\n\nTo make a spear, use the spearhead mould.\n\nThe
-    mould you use determines the type of ingot you create, so there are two different
-    ingots: a sword ingot and a spearhead ingot.\n\nAlso,  tell me about any bugs
-    you run into while playing. If you get stuck or can\u2019t figure out how something
-    works, let me know as well."
+  m_text: "Forged - Playtester Notes\nThe Loop\n\nBuy ore from the seller who visits
+    the shop at night. During the day, run the ore through the stations in order:\n\nFurnace
+    \u2192 Anvil \u2192 Grindstone \u2192 Merge Table\n\nThen serve customers (left-click
+    them) to earn money.\n\nMaking a Sword\nBuy Copper Ore, a Grip, and a Crossguard
+    from the shop.\nPlace the blank mould (on the shelf) into the Furnace, then smelt
+    your ore - this produces a sword ingot.\nForge the ingot on the Anvil, then sharpen
+    it on the Grindstone.\nTake the finished blade to the white table, along with
+    your Grip and Crossguard, to assemble the sword.\n\nIron Sword unlocks later
+    via the Blueprint Book, once you've crafted enough Copper Swords and can afford
+    it - Iron Ore won't be purchasable until then.\n\nMaking a Spear\nBuy Copper
+    Ore, a Spear Pole, and a Spear Butt from the shop.\nPlace the spearhead mould
+    (on the shelf) into the Furnace, then smelt your ore - this produces a spearhead
+    ingot.\nForge and sharpen it the same way as a sword.\nTake the finished spearhead
+    to the black table, along with your Spear Pole and Spear Butt, to assemble the
+    spear.\n\nThe mould you use determines which ingot you get - same ore, different
+    mould, different result.\n\nControls\nLeft-click - interact with things (pick
+    up, place, sell, use a station)\nRight-click - drop whatever you're currently
+    holding\nB - toggle Build Mode (move furniture/stations around); press again
+    to exit\nQ / E - rotate the held object while in Build Mode\nHold left-click
+    - forge/grind at the Anvil and Grindstone (progress pauses if you let go early,
+    it doesn't reset)\n\nReport:\nAny bugs, glitches, or things that look wrong\nAnywhere
+    you got stuck or couldn't figure out what to do next"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -732,7 +740,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -912.6854, y: -505.653, z: -1704.8049, w: -749.373}
+  m_margin: {x: -1066.379, y: -505.653, z: -1704.8049, w: -1283.603}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2191,7 +2199,7 @@ MonoBehaviour:
   interactRange: 5
   interactableLayer:
     serializedVersion: 2
-    m_Bits: 1856
+    m_Bits: 3904
   buildModeController: {fileID: 288590476}
   debugLogging: 1
 --- !u!114 &288590478
@@ -3384,11 +3392,11 @@ Transform:
   m_GameObject: {fileID: 492082588}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 77.961, y: 1.357, z: -279.5962}
-  m_LocalScale: {x: 20.527367, y: 12.155, z: 19.856411}
+  m_LocalPosition: {x: 0.0053263134, y: 0.09290542, z: 0.7076836}
+  m_LocalScale: {x: 13.336385, y: 7.89696, z: 12.900474}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1098962661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &504544036
 GameObject:
@@ -8448,9 +8456,12 @@ MonoBehaviour:
   maxSpawnInterval: 20
   maxActiveCustomers: 3
   possibleOrders:
-  - {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
-  - {fileID: 11400000, guid: ade9f27ea83637649865b544d9b8a703, type: 2}
-  - {fileID: 11400000, guid: b3f7b361f805f49408053420b3dd3efa, type: 2}
+  - item: {fileID: 11400000, guid: ade9f27ea83637649865b544d9b8a703, type: 2}
+    requiredBlueprint: {fileID: 0}
+  - item: {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
+    requiredBlueprint: {fileID: 11400000, guid: 906e7572b7145284c8787a43bdfe5ccc, type: 2}
+  - item: {fileID: 11400000, guid: b3f7b361f805f49408053420b3dd3efa, type: 2}
+    requiredBlueprint: {fileID: 11400000, guid: 3bebf55a59def1043bd6902595a1c689, type: 2}
   debugLogging: 1
 --- !u!4 &1347731032
 Transform:
@@ -8599,6 +8610,7 @@ GameObject:
   - component: {fileID: 1375163598}
   - component: {fileID: 1375163597}
   - component: {fileID: 1375163596}
+  - component: {fileID: 1375163599}
   m_Layer: 5
   m_Name: spear but
   m_TagString: Untagged
@@ -8623,7 +8635,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 180.20001, y: -177.7}
+  m_AnchoredPosition: {x: 180.20001, y: -244.4}
   m_SizeDelta: {x: 179, y: 56.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1375163596
@@ -8720,6 +8732,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1375163593}
   m_CullTransparentMesh: 1
+--- !u!114 &1375163599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1375163593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22d2491fed547b64bb28ca550d1ff7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopOfferGate
+  requiredBlueprint: {fileID: 11400000, guid: 3bebf55a59def1043bd6902595a1c689, type: 2}
+  target: {fileID: 0}
+  debugLogging: 1
 --- !u!1 &1404780402
 GameObject:
   m_ObjectHideFlags: 0
@@ -8956,6 +8983,7 @@ GameObject:
   - component: {fileID: 1430127845}
   - component: {fileID: 1430127844}
   - component: {fileID: 1430127843}
+  - component: {fileID: 1430127846}
   m_Layer: 5
   m_Name: spear pole
   m_TagString: Untagged
@@ -9077,6 +9105,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1430127841}
   m_CullTransparentMesh: 1
+--- !u!114 &1430127846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430127841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22d2491fed547b64bb28ca550d1ff7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopOfferGate
+  requiredBlueprint: {fileID: 11400000, guid: 3bebf55a59def1043bd6902595a1c689, type: 2}
+  target: {fileID: 0}
+  debugLogging: 1
 --- !u!1 &1452435239
 GameObject:
   m_ObjectHideFlags: 0
@@ -13660,6 +13703,7 @@ MonoBehaviour:
   blueprintPanel: {fileID: 910000000000000200}
   blueprints:
   - {fileID: 11400000, guid: 906e7572b7145284c8787a43bdfe5ccc, type: 2}
+  - {fileID: 11400000, guid: 3bebf55a59def1043bd6902595a1c689, type: 2}
   debugLogging: 1
 --- !u!1 &910000000000000200
 GameObject:
@@ -14978,7 +15022,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 180.20001, y: -241.8}
+  m_AnchoredPosition: {x: 180.20001, y: -178.3}
   m_SizeDelta: {x: 179, y: 56.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &3706607403389221007
@@ -15401,7 +15445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5222096777850315948, guid: 171033fd189015144a72308c6427d514, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.06823993
+      value: -2.377
       objectReference: {fileID: 0}
     - target: {fileID: 5222096777850315948, guid: 171033fd189015144a72308c6427d514, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15433,7 +15477,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5222096777850315948, guid: 171033fd189015144a72308c6427d514, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7040133082692973321}
+    - targetCorrespondingSourceObject: {fileID: 5222096777850315948, guid: 171033fd189015144a72308c6427d514, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 492082589}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 171033fd189015144a72308c6427d514, type: 3}
 --- !u!1 &5138482213160355232
@@ -15789,11 +15839,11 @@ Transform:
   m_GameObject: {fileID: 7370524362476328549}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 77.961, y: 1.455312, z: -279.5962}
-  m_LocalScale: {x: 20.527367, y: 12.155, z: 19.856411}
+  m_LocalPosition: {x: 0.0053263134, y: 0.15677758, z: 0.7076836}
+  m_LocalScale: {x: 13.336385, y: 7.89696, z: 12.900474}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1098962661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7205544069739358291
 MeshFilter:
@@ -16555,8 +16605,6 @@ SceneRoots:
   - {fileID: 4827726782603112339}
   - {fileID: 787532401}
   - {fileID: 7334922458068317992}
-  - {fileID: 7040133082692973321}
-  - {fileID: 492082589}
   - {fileID: 245282945788093143}
   - {fileID: 1479328338}
   - {fileID: 2030071790}
