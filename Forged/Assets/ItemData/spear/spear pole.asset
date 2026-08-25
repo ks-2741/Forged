@@ -18,4 +18,4 @@ MonoBehaviour:
   category: 0
   maxStackSize: 1
   sellValue: 1
-  worldPrefab: {fileID: 5368618759238925258, guid: eae69b1079165f744b8f609c42427b62, type: 3}
+  worldPrefab: {fileID: 1881171317523878472, guid: e63ccb148a98d024b94b4c3d427ad258, type: 3}

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1743168838705302609}
   - component: {fileID: 3120472168712726290}
   - component: {fileID: -1256305849415266772}
-  - component: {fileID: 3211151225996346496}
+  - component: {fileID: 2066712535334502990}
   m_Layer: 8
   m_Name: polySurface7
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.08689295, y: -0.029576039, z: 0.0039605233}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 9.751041, y: 9.751041, z: 9.751041}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -136,8 +136,8 @@ MonoBehaviour:
   amount: 1
   gripPoint: {fileID: 0}
   debugLogging: 1
---- !u!64 &3211151225996346496
-MeshCollider:
+--- !u!65 &2066712535334502990
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -154,7 +154,6 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -7843526606762953986, guid: 533797a0b5636904985e2506f72f1a93, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 0.009820555, y: 0.15167134, z: 0.00982056}
+  m_Center: {x: 0.0000000011641531, y: -0.00000000372529, z: 0}
