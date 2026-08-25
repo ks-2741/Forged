@@ -2218,7 +2218,7 @@ MonoBehaviour:
   buildModeController: {fileID: 288590476}
   tossDirectionSource: {fileID: 250153247}
   tossForce: 2
-  showDebugGUI: 1
+  showDebugGUI: 0
   debugLogging: 1
 --- !u!114 &288590479
 MonoBehaviour:
@@ -2233,7 +2233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Currency
   startingBalance: 20
-  showDebugGUI: 1
+  showDebugGUI: 0
   debugLogging: 1
 --- !u!1 &302517775
 GameObject:
