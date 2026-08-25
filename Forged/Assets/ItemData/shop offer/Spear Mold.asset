@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1297c9749150ed84d8ebde3f47ec7276, type: 3}
-  m_Name: Grinder
+  m_Name: Spear Mold
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
-  item: {fileID: 11400000, guid: 2c0ab0b06c57fb44697e5e7a4f0a0e03, type: 2}
+  item: {fileID: 11400000, guid: c8c837aa94fd26a4bac4280cc0528703, type: 2}
   price: 1
   requiredBlueprint: {fileID: 0}

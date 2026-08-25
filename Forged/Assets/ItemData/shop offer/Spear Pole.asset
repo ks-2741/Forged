@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2525967da0b6342458691531d959bb53, type: 3}
-  m_Name: Iron Sword
+  m_Script: {fileID: 11500000, guid: 1297c9749150ed84d8ebde3f47ec7276, type: 3}
+  m_Name: Spear Pole
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
-  item: {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
-  price: 8
+  item: {fileID: 11400000, guid: 051dcbfedc55189408f3b9ff5a1faa62, type: 2}
+  price: 1
+  requiredBlueprint: {fileID: 0}

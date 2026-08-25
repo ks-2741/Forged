@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Spear merge Copper
   m_EditorClassIdentifier: Assembly-CSharp::MergeRecipe
   requiredItems:
-  - {fileID: 11400000, guid: ebde02be659a51b4083676e023a6bd84, type: 2}
+  - {fileID: 11400000, guid: 1d4f61aa6d246bc44a8218300dc49a21, type: 2}
   - {fileID: 11400000, guid: 051dcbfedc55189408f3b9ff5a1faa62, type: 2}
   - {fileID: 11400000, guid: 0d8fb8f1061afe34286f603d766d5b15, type: 2}
   outputItem: {fileID: 11400000, guid: b3f7b361f805f49408053420b3dd3efa, type: 2}

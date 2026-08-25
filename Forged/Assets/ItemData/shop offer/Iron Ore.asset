@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2525967da0b6342458691531d959bb53, type: 3}
+  m_Script: {fileID: 11500000, guid: 1297c9749150ed84d8ebde3f47ec7276, type: 3}
   m_Name: Iron Ore
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
-  price: 2
+  price: 1
   requiredBlueprint: {fileID: 11400000, guid: 906e7572b7145284c8787a43bdfe5ccc, type: 2}

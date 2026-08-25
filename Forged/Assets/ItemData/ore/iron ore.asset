@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: iron ore
   description: 
   icon: {fileID: 0}
-  category: 0
+  category: 4
   maxStackSize: 1
   sellValue: 2
   worldPrefab: {fileID: 4798690913298512951, guid: d784a0a88c36bfd43a853856da883ece, type: 3}

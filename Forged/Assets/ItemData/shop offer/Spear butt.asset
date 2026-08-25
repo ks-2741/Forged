@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2525967da0b6342458691531d959bb53, type: 3}
-  m_Name: Copper Sword
+  m_Script: {fileID: 11500000, guid: 1297c9749150ed84d8ebde3f47ec7276, type: 3}
+  m_Name: Spear butt
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
-  item: {fileID: 11400000, guid: ade9f27ea83637649865b544d9b8a703, type: 2}
-  price: 7
+  item: {fileID: 11400000, guid: 0d8fb8f1061afe34286f603d766d5b15, type: 2}
+  price: 1
+  requiredBlueprint: {fileID: 0}

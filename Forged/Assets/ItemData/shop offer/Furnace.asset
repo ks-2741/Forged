@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Furnace
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: 26ffa0b24748fc44194c0af6d5a5b9b1, type: 2}
-  price: 20
+  price: 1
+  requiredBlueprint: {fileID: 0}
