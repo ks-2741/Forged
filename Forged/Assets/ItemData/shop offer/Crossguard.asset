@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: CrossGuard
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: 5b5fe0861351cb6469da38c631d0e224, type: 2}
-  price: 1
+  price: 2
   requiredBlueprint: {fileID: 0}

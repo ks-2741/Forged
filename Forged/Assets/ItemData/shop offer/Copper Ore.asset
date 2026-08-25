@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Copper Ore
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: cdcaa928ed4f707488fbd27677ff582e, type: 2}
-  price: 1
+  price: 2
   requiredBlueprint: {fileID: 0}

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Spear Pole
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: 051dcbfedc55189408f3b9ff5a1faa62, type: 2}
-  price: 1
+  price: 4
   requiredBlueprint: {fileID: 0}

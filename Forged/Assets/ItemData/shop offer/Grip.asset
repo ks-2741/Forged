@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Grip
   m_EditorClassIdentifier: Assembly-CSharp::ShopOffer
   item: {fileID: 11400000, guid: 2b1cfbb87bccd524bb3b3b59a590d246, type: 2}
-  price: 1
+  price: 2
   requiredBlueprint: {fileID: 0}
