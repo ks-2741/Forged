@@ -4,9 +4,8 @@ using UnityEngine;
 /// <summary>
 /// Put this on an empty GameObject in your shop area. Spawns customers at
 /// Spawn Point (A) only while DayNightCycle says it's day, sends them to
-/// whichever Stand Slots (B) transform is currently free, and sends any
-/// still-present customers to Despawn Point (C) automatically the moment
-/// night starts.
+/// whichever Stand Point is currently free, and sends any still-present
+/// customers to Despawn Point (C) automatically the moment night starts.
 /// </summary>
 public class CustomerManager : MonoBehaviour
 {
@@ -15,8 +14,19 @@ public class CustomerManager : MonoBehaviour
     [SerializeField] private GameObject customerPrefab;
     [Tooltip("Point A - where customers walk in from.")]
     [SerializeField] private Transform spawnPoint;
-    [Tooltip("Point B - the available standing positions at the desk. A customer claims one of these until they leave.")]
-    [SerializeField] private Transform[] standSlots;
+
+    [System.Serializable]
+    public class StandPoint
+    {
+        [Tooltip("Where the customer stands and waits.")]
+        public Transform standSlot;
+        [Tooltip("Where this stand's paid coins should appear on the counter - keep it near this specific stand, since each stand can be a different distance/angle from the counter.")]
+        public Transform moneyDropPoint;
+    }
+
+    [Tooltip("Point B - the available standing positions at the desk. Each one is paired with its own money drop point so payment always lands in the right spot for that stand.")]
+    [SerializeField] private StandPoint[] standPoints;
+
     [Tooltip("Point C - off-screen point customers walk to before being destroyed.")]
     [SerializeField] private Transform despawnPoint;
 
@@ -47,7 +57,7 @@ public class CustomerManager : MonoBehaviour
 
     private void Awake()
     {
-        slotOccupied = new bool[standSlots != null ? standSlots.Length : 0];
+        slotOccupied = new bool[standPoints != null ? standPoints.Length : 0];
         ResetSpawnTimer();
     }
 
@@ -131,10 +141,11 @@ public class CustomerManager : MonoBehaviour
         }
 
         ItemData order = availableOrdersScratch[Random.Range(0, availableOrdersScratch.Count)];
+        StandPoint stand = standPoints[slotIndex];
 
         slotOccupied[slotIndex] = true;
         activeCustomers.Add(customer);
-        customer.Initialize(this, standSlots[slotIndex], despawnPoint, order);
+        customer.Initialize(this, stand.standSlot, despawnPoint, order, stand.moneyDropPoint);
 
         if (debugLogging) Debug.Log($"[CustomerManager] Spawned customer ordering '{order.itemName}' at slot {slotIndex}.");
     }
@@ -181,12 +192,29 @@ public class CustomerManager : MonoBehaviour
     /// <summary>Called by Customer once it reaches the despawn point, to free its slot and untrack it.</summary>
     public void ReleaseCustomer(Customer customer, Transform slot)
     {
-        int index = System.Array.IndexOf(standSlots, slot);
+        int index = FindStandIndex(slot);
         if (index >= 0)
         {
             slotOccupied[index] = false;
         }
         activeCustomers.Remove(customer);
+    }
+
+    private int FindStandIndex(Transform slot)
+    {
+        if (standPoints == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < standPoints.Length; i++)
+        {
+            if (standPoints[i] != null && standPoints[i].standSlot == slot)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void HandleNightStart()

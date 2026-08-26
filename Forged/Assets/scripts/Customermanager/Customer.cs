@@ -1,7 +1,5 @@
 using UnityEngine;
 
-
-
 /// <summary>
 /// Put this on your customer prefab. CustomerManager calls Initialize
 /// right after spawning. Handles walking to its assigned stand slot,
@@ -27,12 +25,17 @@ public class Customer : MonoBehaviour, IInteractable
     [Tooltip("How long a customer waits at the slot before giving up and leaving.")]
     [SerializeField] private float patienceSeconds = 20f;
 
+    [Header("Payment")]
+    [Tooltip("Physical coin pile prefab (needs a MoneyPickup component) spawned onto the counter on a successful sale, instead of adding gold straight to the player's balance.")]
+    [SerializeField] private GameObject moneyPickupPrefab;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
     private CustomerManager manager;
     private Transform standSlot;
     private Transform despawnPoint;
+    private Transform moneyDropPoint;
     private ItemData desiredItem;
     private State state;
     private float patienceTimer;
@@ -41,12 +44,19 @@ public class Customer : MonoBehaviour, IInteractable
     public ItemData DesiredItem => desiredItem;
     public bool IsWaitingForOrder => state == State.Waiting;
 
-    /// <summary>Called by CustomerManager right after Instantiate.</summary>
-    public void Initialize(CustomerManager owningManager, Transform slot, Transform leavePoint, ItemData order)
+    /// <summary>
+    /// Called by CustomerManager right after Instantiate. dropPoint is this
+    /// specific stand's money drop point (see CustomerManager.StandPoint) -
+    /// it's passed in per-spawn rather than fixed on the prefab, since
+    /// which stand a customer lands on (and therefore where their coins
+    /// should appear) is only known once CustomerManager assigns a slot.
+    /// </summary>
+    public void Initialize(CustomerManager owningManager, Transform slot, Transform leavePoint, ItemData order, Transform dropPoint)
     {
         manager = owningManager;
         standSlot = slot;
         despawnPoint = leavePoint;
+        moneyDropPoint = dropPoint;
         desiredItem = order;
         state = State.WalkingToSlot;
         mainCamera = Camera.main;
@@ -163,17 +173,42 @@ public class Customer : MonoBehaviour, IInteractable
 
         playerHand.ConsumeHeld();
 
-        Currency currency = interactor.GetComponent<Currency>();
-        if (currency != null)
+        SpawnMoneyDrop(desiredItem.sellValue);
+
+        FulfillOrder();
+    }
+
+    /// <summary>
+    /// Spawns a physical coin pile worth 'amount' at this customer's
+    /// assigned Money Drop Point (or this customer's own position if none
+    /// was given) for the player to walk up and click, rather than adding
+    /// gold straight to their balance.
+    /// </summary>
+    private void SpawnMoneyDrop(int amount)
+    {
+        if (amount <= 0)
         {
-            currency.Add(desiredItem.sellValue);
+            return;
+        }
+
+        if (moneyPickupPrefab == null)
+        {
+            if (debugLogging) Debug.LogWarning("[Customer] No Money Pickup Prefab assigned - sale completed but no money dropped.");
+            return;
+        }
+
+        Transform origin = moneyDropPoint != null ? moneyDropPoint : transform;
+        GameObject instance = Instantiate(moneyPickupPrefab, origin.position, origin.rotation);
+
+        MoneyPickup pickup = instance.GetComponent<MoneyPickup>();
+        if (pickup != null)
+        {
+            pickup.Initialize(amount);
         }
         else if (debugLogging)
         {
-            Debug.LogWarning($"[Customer] '{interactor.name}' has no Currency component - sale completed but no payment given.");
+            Debug.LogWarning("[Customer] Money Pickup Prefab has no MoneyPickup component - it'll spawn but won't be collectible.");
         }
-
-        FulfillOrder();
     }
 
     /// <summary>Sends the customer walking off to despawn, regardless of current state (unless already leaving).</summary>
