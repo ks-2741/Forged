@@ -145,6 +145,7 @@ public class PlayerController : MonoBehaviour
             // panel owns cursor state until it closes itself.
             bool uiPanelOpen = (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
                 || (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen);
+               
 
             if (!uiPanelOpen)
             {

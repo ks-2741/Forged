@@ -45,6 +45,8 @@ public class PlayerInteractor : MonoBehaviour
             return;
         }
 
+       
+
         if (UnityEngine.EventSystems.EventSystem.current != null
             && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {

@@ -19,7 +19,7 @@ TagManager:
   - Customer
   - Seller
   - clock
-  - interact
+  - 'Interactable '
   - 
   - 
   - 

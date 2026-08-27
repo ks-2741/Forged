@@ -15,5 +15,5 @@ MonoBehaviour:
   blueprintName: 'Copper Spear '
   description: 
   requiredCraftedItem: {fileID: 11400000, guid: 02dc8c87e75ca064b84928c6a1ad3c40, type: 2}
-  requiredCraftedAmount: 10
+  requiredCraftedAmount: 1
   goldCost: 1

@@ -41,6 +41,17 @@ public class NobleCustomer : MonoBehaviour, IInteractable
     [Tooltip("Physical coin pile prefab (needs a MoneyPickup component) spawned once the full order is delivered.")]
     [SerializeField] private GameObject moneyPickupPrefab;
 
+    [Header("Notifications (optional)")]
+    [Tooltip("Shown via NotificationBanner.Instance, if one exists in the scene. Leave a message blank to skip that particular notification.")]
+    [SerializeField] private string arrivalMessage = "A noble has arrived with a commission!";
+    [SerializeField] private string returnMessage = "The noble has returned to collect their order.";
+    [SerializeField] private string completeMessage = "Commission complete!";
+
+    [Header("Audio (optional)")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip arrivalClip;
+    [SerializeField] private AudioClip completionClip;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
@@ -52,12 +63,14 @@ public class NobleCustomer : MonoBehaviour, IInteractable
     private Mode mode;
     private State state;
     private float timer;
+    private int standIndex;
+    private bool releaseStandOnDespawn;
     private Camera mainCamera;
 
     public NobleOrder Order => order;
 
     /// <summary>Called by NobleManager right after Instantiate, for BOTH visits.</summary>
-    public void Initialize(NobleManager owningManager, Transform slot, Transform leavePoint, Transform dropPoint, NobleOrder activeOrder, Mode startMode)
+    public void Initialize(NobleManager owningManager, Transform slot, Transform leavePoint, Transform dropPoint, NobleOrder activeOrder, Mode startMode, int assignedStandIndex)
     {
         manager = owningManager;
         standSlot = slot;
@@ -65,6 +78,7 @@ public class NobleCustomer : MonoBehaviour, IInteractable
         moneyDropPoint = dropPoint;
         order = activeOrder;
         mode = startMode;
+        standIndex = assignedStandIndex;
         state = State.WalkingToSlot;
         mainCamera = Camera.main;
 
@@ -95,6 +109,8 @@ public class NobleCustomer : MonoBehaviour, IInteractable
                 timer -= Time.deltaTime;
                 if (timer <= 0f)
                 {
+                    // Placing visit finishing normally - the stand stays
+                    // reserved for this order, so no release here.
                     if (debugLogging) Debug.Log($"[NobleCustomer] Order #{order.id} placed - leaving until it's due.");
                     Leave();
                 }
@@ -109,6 +125,7 @@ public class NobleCustomer : MonoBehaviour, IInteractable
                     {
                         NobleOrderManager.Instance.AbandonOrder(order);
                     }
+                    releaseStandOnDespawn = true;
                     Leave();
                 }
                 break;
@@ -148,6 +165,7 @@ public class NobleCustomer : MonoBehaviour, IInteractable
             state = State.Presenting;
             timer = presentDuration;
             RefreshOrderText();
+            Announce(arrivalMessage, arrivalClip);
             if (debugLogging) Debug.Log($"[NobleCustomer] Presenting order #{order.id}.");
         }
         else
@@ -155,6 +173,7 @@ public class NobleCustomer : MonoBehaviour, IInteractable
             state = State.Waiting;
             timer = patienceSeconds;
             RefreshOrderText();
+            Announce(returnMessage, arrivalClip);
             if (debugLogging) Debug.Log($"[NobleCustomer] Here to collect order #{order.id}.");
         }
     }
@@ -254,6 +273,9 @@ public class NobleCustomer : MonoBehaviour, IInteractable
             orderText.text = "Excellent work!";
         }
 
+        Announce($"{completeMessage} +{order.totalPayout}g", completionClip);
+
+        releaseStandOnDespawn = true;
         Leave();
     }
 
@@ -284,6 +306,19 @@ public class NobleCustomer : MonoBehaviour, IInteractable
         }
     }
 
+    private void Announce(string message, AudioClip clip)
+    {
+        if (!string.IsNullOrEmpty(message) && NotificationBanner.Instance != null)
+        {
+            NotificationBanner.Instance.Show(message);
+        }
+
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
     /// <summary>Sends the noble walking off to despawn, regardless of current state (unless already leaving).</summary>
     public void Leave()
     {
@@ -297,10 +332,14 @@ public class NobleCustomer : MonoBehaviour, IInteractable
 
     private void Despawn()
     {
-        if (manager != null)
+        // Release happens here (not the moment the order concluded) so the
+        // stand doesn't free up for a brand new commission until this noble
+        // has actually walked off and out of the way.
+        if (releaseStandOnDespawn && manager != null)
         {
-            manager.ReleaseSlot();
+            manager.ReleaseStand(standIndex, order);
         }
+
         Destroy(gameObject);
     }
 }

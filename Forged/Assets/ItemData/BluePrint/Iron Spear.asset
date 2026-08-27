@@ -15,5 +15,5 @@ MonoBehaviour:
   blueprintName: Iron Spear
   description: 
   requiredCraftedItem: {fileID: 11400000, guid: b3f7b361f805f49408053420b3dd3efa, type: 2}
-  requiredCraftedAmount: 10
+  requiredCraftedAmount: 1
   goldCost: 1

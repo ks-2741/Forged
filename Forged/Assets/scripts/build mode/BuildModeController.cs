@@ -67,6 +67,8 @@ public class BuildModeController : MonoBehaviour
             return;
         }
 
+       
+
         // Only allow toggling Build Mode when nothing's currently held, so
         // you can't get stuck carrying something with no way to place it.
         if (keyboard.bKey.wasPressedThisFrame && !IsInBuildMode)

@@ -3,16 +3,14 @@ using UnityEngine;
 
 /// <summary>
 /// Put this on an empty GameObject, similar to CustomerManager, but for
-/// special multi-item Noble commissions. Periodically spawns a noble
-/// (day-only, same gating as regular customers) who places a multi-item
-/// order via NobleOrderManager, then leaves. Once that order's day
-/// countdown hits 0 (NobleOrderManager.OnOrderReadyForDelivery), this
-/// automatically spawns the noble back at the stand to collect the
-/// finished items and pay out.
-///
-/// Only ONE noble order is active at a time in this version - a new
-/// order-placing visit won't spawn while one is still pending or awaiting
-/// delivery.
+/// special multi-item Noble commissions. Supports several commissions
+/// active at once - one per entry in Stand Points. Periodically spawns a
+/// noble at any free stand (day-only, same gating as regular customers)
+/// who places a multi-item order via NobleOrderManager, then leaves. Once
+/// that order's day countdown hits 0 (NobleOrderManager.OnOrderReadyForDelivery),
+/// this automatically spawns the noble back at THEIR SPECIFIC stand to
+/// collect the finished items and pay out - that stand stays reserved for
+/// their order the whole time, even while they're away.
 /// </summary>
 public class NobleManager : MonoBehaviour
 {
@@ -20,14 +18,22 @@ public class NobleManager : MonoBehaviour
     [SerializeField] private DayNightCycle dayNightCycle;
     [SerializeField] private NobleOrderManager orderManager;
     [SerializeField] private GameObject noblePrefab;
-    [Tooltip("Where the noble walks in from.")]
+    [Tooltip("Where nobles walk in from.")]
     [SerializeField] private Transform spawnPoint;
-    [Tooltip("Where the noble stands - both to place the order and later to collect it.")]
-    [SerializeField] private Transform standSlot;
-    [Tooltip("Where the noble's payment coin pile appears once the order is fully delivered.")]
-    [SerializeField] private Transform moneyDropPoint;
-    [Tooltip("Where the noble walks off to before being destroyed.")]
+    [Tooltip("Where nobles walk off to before being destroyed.")]
     [SerializeField] private Transform despawnPoint;
+
+    [System.Serializable]
+    public class NobleStandPoint
+    {
+        [Tooltip("Where the noble stands - both to place the order and later to collect it.")]
+        public Transform standSlot;
+        [Tooltip("Where this stand's payment coin pile appears once its order is fully delivered.")]
+        public Transform moneyDropPoint;
+    }
+
+    [Tooltip("One entry per concurrent commission this shop can have active at once - each stand stays reserved for its own order for the order's whole lifetime, even while the noble who placed it is away.")]
+    [SerializeField] private NobleStandPoint[] standPoints;
 
     [Header("Spawning (placing a NEW order)")]
     [SerializeField] private float minSpawnInterval = 120f;
@@ -52,10 +58,11 @@ public class NobleManager : MonoBehaviour
     [SerializeField] private bool debugLogging = true;
 
     private float spawnTimer;
-    private bool slotOccupied;
+    private NobleOrder[] ordersByStand;
 
     private void Awake()
     {
+        ordersByStand = new NobleOrder[standPoints != null ? standPoints.Length : 0];
         ResetSpawnTimer();
     }
 
@@ -82,11 +89,6 @@ public class NobleManager : MonoBehaviour
             return;
         }
 
-        if (slotOccupied || orderManager == null || orderManager.HasActiveOrder())
-        {
-            return;
-        }
-
         spawnTimer -= Time.deltaTime;
         if (spawnTimer <= 0f)
         {
@@ -102,6 +104,13 @@ public class NobleManager : MonoBehaviour
 
     private void TrySpawnOrderVisit()
     {
+        int standIndex = FindFreeStand();
+        if (standIndex < 0)
+        {
+            if (debugLogging) Debug.Log("[NobleManager] Every stand already has an active commission - skipping spawn.");
+            return;
+        }
+
         NobleOrderTemplate template = PickAvailableTemplate();
         if (template == null)
         {
@@ -123,17 +132,25 @@ public class NobleManager : MonoBehaviour
         }
 
         NobleOrder order = orderManager.CreateOrder(lines, template.daysToComplete, template.payout);
+        ordersByStand[standIndex] = order;
 
-        SpawnNoble(NobleCustomer.Mode.PlacingOrder, order);
+        SpawnNoble(NobleCustomer.Mode.PlacingOrder, order, standIndex);
     }
 
     private void HandleOrderReadyForDelivery(NobleOrder order)
     {
-        if (debugLogging) Debug.Log($"[NobleManager] Order #{order.id} is due - spawning noble to collect.");
-        SpawnNoble(NobleCustomer.Mode.CollectingDelivery, order);
+        int standIndex = FindStandForOrder(order);
+        if (standIndex < 0)
+        {
+            if (debugLogging) Debug.LogWarning($"[NobleManager] Order #{order.id} is due but no stand is tracking it - can't spawn the collecting noble.");
+            return;
+        }
+
+        if (debugLogging) Debug.Log($"[NobleManager] Order #{order.id} is due - spawning noble to collect at stand {standIndex}.");
+        SpawnNoble(NobleCustomer.Mode.CollectingDelivery, order, standIndex);
     }
 
-    private void SpawnNoble(NobleCustomer.Mode mode, NobleOrder order)
+    private void SpawnNoble(NobleCustomer.Mode mode, NobleOrder order, int standIndex)
     {
         if (!ValidateReferences())
         {
@@ -149,14 +166,46 @@ public class NobleManager : MonoBehaviour
             return;
         }
 
-        slotOccupied = true;
-        noble.Initialize(this, standSlot, despawnPoint, moneyDropPoint, order, mode);
+        NobleStandPoint stand = standPoints[standIndex];
+        noble.Initialize(this, stand.standSlot, despawnPoint, stand.moneyDropPoint, order, mode, standIndex);
     }
 
-    /// <summary>Called by NobleCustomer once it's despawned, whichever mode it was in.</summary>
-    public void ReleaseSlot()
+    /// <summary>Called by NobleCustomer once an order is finished (completed or abandoned) to free its stand back up.</summary>
+    public void ReleaseStand(int standIndex, NobleOrder order)
     {
-        slotOccupied = false;
+        if (ordersByStand == null || standIndex < 0 || standIndex >= ordersByStand.Length)
+        {
+            return;
+        }
+
+        if (ordersByStand[standIndex] == order)
+        {
+            ordersByStand[standIndex] = null;
+        }
+    }
+
+    private int FindFreeStand()
+    {
+        for (int i = 0; i < ordersByStand.Length; i++)
+        {
+            if (ordersByStand[i] == null)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int FindStandForOrder(NobleOrder order)
+    {
+        for (int i = 0; i < ordersByStand.Length; i++)
+        {
+            if (ordersByStand[i] == order)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private NobleOrderTemplate PickAvailableTemplate()
@@ -188,9 +237,15 @@ public class NobleManager : MonoBehaviour
 
     private bool ValidateReferences()
     {
-        if (noblePrefab == null || spawnPoint == null || standSlot == null || despawnPoint == null)
+        if (noblePrefab == null || spawnPoint == null || despawnPoint == null)
         {
-            Debug.LogWarning("[NobleManager] Missing Noble Prefab, Spawn Point, Stand Slot, or Despawn Point.");
+            Debug.LogWarning("[NobleManager] Missing Noble Prefab, Spawn Point, or Despawn Point.");
+            return false;
+        }
+
+        if (standPoints == null || standPoints.Length == 0)
+        {
+            Debug.LogWarning("[NobleManager] No Stand Points configured.");
             return false;
         }
 
