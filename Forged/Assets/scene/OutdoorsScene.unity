@@ -7340,7 +7340,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
   dayNightCycle: {fileID: 2195690528179935099}
   playerCurrency: {fileID: 288590479}
-  testLevelFallback: {fileID: 0}
+  testLevelFallback: {fileID: 11400000, guid: 8dcd312ca7ec01941a084e357ff6b853, type: 2}
   debugLogging: 1
 --- !u!4 &932377728
 Transform:
