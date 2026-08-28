@@ -1,11 +1,15 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Persistent singleton tracking which Blueprints have been learned.
-/// SellerStation checks IsUnlocked (via a ShopOffer's Required Blueprint)
-/// before allowing a purchase. BlueprintUI calls TryUnlock when the player
-/// clicks to learn one.
+/// Tracks which Blueprints have been learned. SellerStation checks
+/// IsUnlocked (via a ShopOffer's Required Blueprint) before allowing a
+/// purchase. BlueprintUI calls TryUnlock when the player clicks to learn
+/// one.
+///
+/// The actual unlocked set lives in GameSession.UnlockedBlueprints (a
+/// static field that survives scene reloads) rather than as a local field
+/// here, since blueprint progress is meant to persist across levels while
+/// everything else in the Workshop scene resets on reload.
 /// </summary>
 public class BlueprintManager : MonoBehaviour
 {
@@ -13,8 +17,6 @@ public class BlueprintManager : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
-
-    private readonly HashSet<Blueprint> unlocked = new HashSet<Blueprint>();
 
     private void Awake()
     {
@@ -24,7 +26,7 @@ public class BlueprintManager : MonoBehaviour
 
     public bool IsUnlocked(Blueprint blueprint)
     {
-        return blueprint != null && unlocked.Contains(blueprint);
+        return blueprint != null && GameSession.UnlockedBlueprints.Contains(blueprint);
     }
 
     /// <summary>
@@ -52,8 +54,8 @@ public class BlueprintManager : MonoBehaviour
             return false;
         }
 
-        unlocked.Add(blueprint);
-        if (debugLogging) Debug.Log($"[BlueprintManager] Learned '{blueprint.blueprintName}' (instance ID {blueprint.GetInstanceID()}) on manager instance {GetInstanceID()}. Total learned: {unlocked.Count}.");
+        GameSession.UnlockedBlueprints.Add(blueprint);
+        if (debugLogging) Debug.Log($"[BlueprintManager] Learned '{blueprint.blueprintName}' (instance ID {blueprint.GetInstanceID()}). Total learned this session: {GameSession.UnlockedBlueprints.Count}.");
         return true;
     }
 }

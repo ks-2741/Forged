@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Persistent singleton tracking how many of each item the player has
-/// crafted, cumulatively, for their whole playthrough - never decreases,
-/// even if the item is later sold/used/lost. MergeTable reports here the
-/// moment a finished sword is produced.
+/// Persistent (for the duration of this level - it resets on scene reload
+/// like everything else in the Workshop scene) tracker for how many of
+/// each item the player has crafted THIS level, never decreasing even if
+/// the item is later sold/used/lost. MergeTable reports here the moment a
+/// finished sword is produced.
 /// </summary>
 public class CraftingStatsTracker : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class CraftingStatsTracker : MonoBehaviour
 
         craftedCounts[item] += amount;
 
-        if (debugLogging) Debug.Log($"[CraftingStats] '{item.itemName}' lifetime crafted total: {craftedCounts[item]}");
+        if (debugLogging) Debug.Log($"[CraftingStats] '{item.itemName}' crafted total this level: {craftedCounts[item]}");
     }
 
     public int GetCraftedCount(ItemData item)
@@ -46,5 +47,16 @@ public class CraftingStatsTracker : MonoBehaviour
         }
 
         return craftedCounts.TryGetValue(item, out int count) ? count : 0;
+    }
+
+    /// <summary>Sum of every item's crafted count this level - used for the end-of-level "weapons made" stat.</summary>
+    public int GetTotalCraftedCount()
+    {
+        int total = 0;
+        foreach (int count in craftedCounts.Values)
+        {
+            total += count;
+        }
+        return total;
     }
 }
