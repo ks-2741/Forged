@@ -5,8 +5,9 @@ using System.Collections.Generic;
 /// reload/change for the whole play session: which level is currently
 /// being played, the player's permanent Money Bank (spent on the skill
 /// tree/cosmetics later), which Blueprints have been permanently learned,
-/// and the best result recorded so far for each level (for the map to show
-/// stars per level and gate which levels are unlocked).
+/// which skill tree nodes have been unlocked, and the best result recorded
+/// so far for each level (for the map to show stars per level and gate
+/// which levels are unlocked).
 ///
 /// Static fields persist automatically across SceneManager.LoadScene calls
 /// for as long as the game is running - no DontDestroyOnLoad object needed.
@@ -19,6 +20,8 @@ public static class GameSession
     public static int BankedGold;
 
     public static readonly HashSet<Blueprint> UnlockedBlueprints = new HashSet<Blueprint>();
+
+    public static readonly HashSet<SkillDefinition> UnlockedSkills = new HashSet<SkillDefinition>();
 
     public static readonly Dictionary<LevelDefinition, LevelResult> BestResults = new Dictionary<LevelDefinition, LevelResult>();
 

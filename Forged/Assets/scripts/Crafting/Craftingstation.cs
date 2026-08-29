@@ -9,6 +9,11 @@ using UnityEngine;
 /// a timer runs, and the output is physically spawned onto Output Tray.
 /// Left-clicking while holding a MOLD (any item in Compatible Molds)
 /// places it in the mold slot, making the smelted output depend on it.
+///
+/// Supports multiple concurrent smelts - Capacity is 1 plus whatever the
+/// Efficiency skill path has unlocked (SkillManager.FurnaceSlotBonus), so
+/// the furnace only blocks a new smelt once every slot is busy. Craft time
+/// per-smelt is also scaled by SkillManager.CraftSpeedMultiplier.
 /// </summary>
 public class CraftingStation : MonoBehaviour, IInteractable
 {
@@ -33,10 +38,24 @@ public class CraftingStation : MonoBehaviour, IInteractable
 
     public string StationName => stationName;
     public IReadOnlyList<CraftingRecipe> Recipes => recipes;
-    public bool IsCrafting { get; private set; }
 
-    /// <summary>0-1 progress of the current craft, for an optional in-world indicator. 0 when idle.</summary>
-    public float CraftProgress01 { get; private set; }
+    /// <summary>Tracks one in-progress smelt - lets the furnace run several at once instead of one shared progress value.</summary>
+    private class CraftJob
+    {
+        public CraftingRecipe recipe;
+        public float progress01;
+    }
+
+    private readonly List<CraftJob> activeCrafts = new List<CraftJob>();
+
+    /// <summary>How many smelts can run at once - 1 base slot plus whatever Efficiency has unlocked.</summary>
+    public int Capacity => 1 + SkillManager.FurnaceSlotBonus;
+    public int ActiveCraftCount => activeCrafts.Count;
+    public bool IsCrafting => activeCrafts.Count > 0;
+    private bool IsFull => activeCrafts.Count >= Capacity;
+
+    /// <summary>Progress of the most recently started smelt, for a simple single-value indicator. 0 when idle. See ActiveCraftCount/Capacity for the full picture with multiple slots.</summary>
+    public float CraftProgress01 => activeCrafts.Count > 0 ? activeCrafts[activeCrafts.Count - 1].progress01 : 0f;
 
     private GameObject placedMoldObject;
     private ItemData currentMold;
@@ -195,9 +214,9 @@ public class CraftingStation : MonoBehaviour, IInteractable
 
     private void TrySmelt(Inventory playerHand)
     {
-        if (IsCrafting)
+        if (IsFull)
         {
-            if (debugLogging) Debug.Log($"[CraftingStation] '{stationName}' is already smelting something - wait for it to finish.");
+            if (debugLogging) Debug.Log($"[CraftingStation] '{stationName}' is full ({activeCrafts.Count}/{Capacity} slots busy) - wait for one to finish.");
             return;
         }
 
@@ -239,22 +258,24 @@ public class CraftingStation : MonoBehaviour, IInteractable
 
     private IEnumerator CraftRoutine(CraftingRecipe recipe)
     {
-        IsCrafting = true;
-        CraftProgress01 = 0f;
-        if (debugLogging) Debug.Log($"[CraftingStation] Smelting '{recipe.inputItem.itemName}' -> '{recipe.outputItem.itemName}' ({recipe.craftTime}s).");
+        CraftJob job = new CraftJob { recipe = recipe, progress01 = 0f };
+        activeCrafts.Add(job);
+
+        float craftTime = Mathf.Max(0.01f, recipe.craftTime * SkillManager.CraftSpeedMultiplier);
+
+        if (debugLogging) Debug.Log($"[CraftingStation] Smelting '{recipe.inputItem.itemName}' -> '{recipe.outputItem.itemName}' ({craftTime:F1}s, slot {activeCrafts.Count}/{Capacity}).");
 
         float elapsed = 0f;
-        while (elapsed < recipe.craftTime)
+        while (elapsed < craftTime)
         {
             elapsed += Time.deltaTime;
-            CraftProgress01 = Mathf.Clamp01(elapsed / recipe.craftTime);
+            job.progress01 = Mathf.Clamp01(elapsed / craftTime);
             yield return null;
         }
 
         outputTray.SpawnItem(recipe.outputItem, recipe.outputAmount);
         if (debugLogging) Debug.Log($"[CraftingStation] Done - {recipe.outputAmount}x '{recipe.outputItem.itemName}' dropped on the tray.");
 
-        IsCrafting = false;
-        CraftProgress01 = 0f;
+        activeCrafts.Remove(job);
     }
 }

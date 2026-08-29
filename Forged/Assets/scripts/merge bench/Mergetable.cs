@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Merge time (matchedRecipe.craftTime) is scaled by
+/// SkillManager.CraftSpeedMultiplier (Efficiency skill path), same as the
+/// furnace/anvil/grinder.
+///
+/// Progressing requires the player to actually be looking at THIS merge
+/// table while holding left-click - see AnvilStation for why. That "all at
+/// once" behavior only becomes allowed once the Multitask skill is
+/// unlocked (SkillManager.IsMultitaskUnlocked).
+/// </summary>
 public class MergeTable : MonoBehaviour, IInteractable
 {
     [SerializeField] private string stationName = "Merge Table";
@@ -18,6 +28,10 @@ public class MergeTable : MonoBehaviour, IInteractable
 
     [Header("Slots")]
     [SerializeField] private ItemSlot[] itemSlots;
+
+    [Header("Multitask Gating")]
+    [Tooltip("How far the look-check reaches when deciding if the player is aimed at this merge table. Only matters until the Multitask skill is unlocked - after that, this station always progresses while left-click is held, regardless of where the player is looking.")]
+    [SerializeField] private float lookRange = 8f;
 
     [Header("Completion")]
     [SerializeField] private Color flashColor = Color.white;
@@ -57,12 +71,12 @@ public class MergeTable : MonoBehaviour, IInteractable
         if (Mouse.current == null)
             return;
 
-        if (Mouse.current.leftButton.isPressed)
+        if (Mouse.current.leftButton.isPressed && (SkillManager.IsMultitaskUnlocked || IsPlayerLookingAtThis()))
         {
             IsMerging = true;
 
-            progress += Time.deltaTime /
-                        Mathf.Max(0.01f, matchedRecipe.craftTime);
+            float craftTime = Mathf.Max(0.01f, matchedRecipe.craftTime * SkillManager.CraftSpeedMultiplier);
+            progress += Time.deltaTime / craftTime;
 
             progress = Mathf.Clamp01(progress);
 
@@ -73,6 +87,18 @@ public class MergeTable : MonoBehaviour, IInteractable
         {
             IsMerging = false;
         }
+    }
+
+    private bool IsPlayerLookingAtThis()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return false;
+        }
+
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        return Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.transform.IsChildOf(transform);
     }
 
     public void Interact(GameObject interactor)

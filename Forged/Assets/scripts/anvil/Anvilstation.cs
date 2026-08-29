@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +9,14 @@ using UnityEngine.InputSystem;
 /// it along one axis (progress persists if you let go - it just pauses).
 /// On completion it flashes white, then the ingot is replaced with the
 /// recipe's output item (e.g. a blade) as a normal pickup-able WorldItem.
-/// Reuses CraftingRecipe - Craft Time here means seconds of holding needed.
+/// Reuses CraftingRecipe - Craft Time here means seconds of holding needed,
+/// scaled by SkillManager.CraftSpeedMultiplier (Efficiency skill path).
+///
+/// Progressing requires the player to actually be looking at THIS anvil
+/// while holding left-click - otherwise every occupied station in the
+/// workshop would progress at once just because the mouse button is down
+/// somewhere. That "all at once" behavior only becomes allowed once the
+/// Multitask skill is unlocked (SkillManager.IsMultitaskUnlocked).
 /// </summary>
 public class AnvilStation : MonoBehaviour, IInteractable
 {
@@ -26,6 +32,10 @@ public class AnvilStation : MonoBehaviour, IInteractable
     [SerializeField] private Vector3 stretchAxisMask = new Vector3(0f, 0f, 1f);
     [Tooltip("How much longer the item gets at 100% progress (1.6 = 60% longer).")]
     [SerializeField] private float targetScaleMultiplier = 1.6f;
+
+    [Header("Multitask Gating")]
+    [Tooltip("How far the look-check reaches when deciding if the player is aimed at this anvil. Only matters until the Multitask skill is unlocked - after that, this station always progresses while left-click is held, regardless of where the player is looking.")]
+    [SerializeField] private float lookRange = 8f;
 
     [Header("Completion")]
     [SerializeField] private Color flashColor = Color.white;
@@ -58,11 +68,12 @@ public class AnvilStation : MonoBehaviour, IInteractable
             return;
         }
 
-        if (mouse.leftButton.isPressed)
+        if (mouse.leftButton.isPressed && (SkillManager.IsMultitaskUnlocked || IsPlayerLookingAtThis()))
         {
             IsForging = true;
 
-            progress += Time.deltaTime / Mathf.Max(0.01f, activeRecipe.craftTime);
+            float craftTime = Mathf.Max(0.01f, activeRecipe.craftTime * SkillManager.CraftSpeedMultiplier);
+            progress += Time.deltaTime / craftTime;
             progress = Mathf.Clamp01(progress);
 
             Vector3 targetScale = new Vector3(
@@ -80,9 +91,22 @@ public class AnvilStation : MonoBehaviour, IInteractable
         }
         else
         {
-            // Released early - progress and scale simply stay where they are.
+            // Released early, or held while not looking (and Multitask isn't
+            // unlocked yet) - progress and scale simply stay where they are.
             IsForging = false;
         }
+    }
+
+    private bool IsPlayerLookingAtThis()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return false;
+        }
+
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        return Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.transform.IsChildOf(transform);
     }
 
     public void Interact(GameObject interactor)

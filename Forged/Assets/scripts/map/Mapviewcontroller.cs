@@ -13,6 +13,12 @@ using UnityEngine.InputSystem;
 /// rather than PlayerInteractor's crosshair-centered one, since the cursor
 /// is now free to roam the screen and needs to hit whichever LevelNode
 /// cube it's actually over. Escape or right-click backs out to normal play.
+///
+/// Also tracks which LevelNode (if any) is currently "armed" - i.e. has
+/// been clicked once and is showing its LevelPreviewUI panel, waiting for
+/// a confirming second click before it actually loads. A click that
+/// misses every node, or exiting map view entirely, clears the armed node
+/// and hides the preview panel.
 /// </summary>
 public class MapViewController : MonoBehaviour
 {
@@ -31,6 +37,9 @@ public class MapViewController : MonoBehaviour
     [SerializeField] private bool debugLogging = true;
 
     public bool IsOpen { get; private set; }
+
+    /// <summary>The LevelNode currently selected/previewed and awaiting a confirming click, if any.</summary>
+    public LevelNode ArmedNode { get; private set; }
 
     private Vector3 originalLocalPosition;
     private Quaternion originalLocalRotation;
@@ -111,7 +120,32 @@ public class MapViewController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        DisarmNode();
+
         if (debugLogging) Debug.Log("[MapViewController] Exited map view.");
+    }
+
+    /// <summary>Called by LevelNode.Interact() on a first click, before its preview is shown.</summary>
+    public void ArmNode(LevelNode node)
+    {
+        ArmedNode = node;
+        if (debugLogging) Debug.Log($"[MapViewController] Armed node '{(node != null ? node.name : "none")}'.");
+    }
+
+    /// <summary>Clears the armed node and hides its preview panel, if any.</summary>
+    public void DisarmNode()
+    {
+        if (ArmedNode == null)
+        {
+            return;
+        }
+
+        ArmedNode = null;
+
+        if (LevelPreviewUI.Instance != null)
+        {
+            LevelPreviewUI.Instance.Hide();
+        }
     }
 
     private void TryClickMap(Vector2 screenPosition)
@@ -138,9 +172,10 @@ public class MapViewController : MonoBehaviour
                 Debug.LogWarning($"[MapViewController] Hit '{hit.collider.name}' but it has no IInteractable.");
             }
         }
-        else if (debugLogging)
+        else
         {
-            Debug.Log("[MapViewController] Click missed every map node.");
+            if (debugLogging) Debug.Log("[MapViewController] Click missed every map node - deselecting.");
+            DisarmNode();
         }
     }
 }

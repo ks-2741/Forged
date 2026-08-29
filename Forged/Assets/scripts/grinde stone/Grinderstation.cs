@@ -10,7 +10,13 @@ using UnityEngine.InputSystem;
 /// progress is kept). On completion it flashes, then the flat blade is
 /// replaced with the recipe's output (your sharp sword prefab) as a
 /// normal pickup-able WorldItem. Reuses CraftingRecipe - Craft Time here
-/// means seconds of holding needed, same as the anvil.
+/// means seconds of holding needed, same as the anvil, scaled by
+/// SkillManager.CraftSpeedMultiplier (Efficiency skill path).
+///
+/// Progressing requires the player to actually be looking at THIS grinder
+/// while holding left-click - see AnvilStation for why. That "all at once"
+/// behavior only becomes allowed once the Multitask skill is unlocked
+/// (SkillManager.IsMultitaskUnlocked).
 /// </summary>
 public class GrinderStation : MonoBehaviour, IInteractable
 {
@@ -20,6 +26,10 @@ public class GrinderStation : MonoBehaviour, IInteractable
     [Header("Placement")]
     [Tooltip("Empty child Transform on the grinder where the blade sits while being sharpened.")]
     [SerializeField] private Transform grinderSlot;
+
+    [Header("Multitask Gating")]
+    [Tooltip("How far the look-check reaches when deciding if the player is aimed at this grinder. Only matters until the Multitask skill is unlocked - after that, this station always progresses while left-click is held, regardless of where the player is looking.")]
+    [SerializeField] private float lookRange = 8f;
 
     [Header("Completion")]
     [SerializeField] private Color flashColor = Color.white;
@@ -51,11 +61,12 @@ public class GrinderStation : MonoBehaviour, IInteractable
             return;
         }
 
-        if (mouse.leftButton.isPressed)
+        if (mouse.leftButton.isPressed && (SkillManager.IsMultitaskUnlocked || IsPlayerLookingAtThis()))
         {
             IsGrinding = true;
 
-            progress += Time.deltaTime / Mathf.Max(0.01f, activeRecipe.craftTime);
+            float craftTime = Mathf.Max(0.01f, activeRecipe.craftTime * SkillManager.CraftSpeedMultiplier);
+            progress += Time.deltaTime / craftTime;
             progress = Mathf.Clamp01(progress);
 
             if (progress >= 1f)
@@ -65,9 +76,22 @@ public class GrinderStation : MonoBehaviour, IInteractable
         }
         else
         {
-            // Released early - progress simply stays where it is.
+            // Released early, or held while not looking (and Multitask isn't
+            // unlocked yet) - progress simply stays where it is.
             IsGrinding = false;
         }
+    }
+
+    private bool IsPlayerLookingAtThis()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return false;
+        }
+
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        return Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.transform.IsChildOf(transform);
     }
 
     public void Interact(GameObject interactor)

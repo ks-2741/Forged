@@ -5,9 +5,14 @@ using UnityEngine.SceneManagement;
 /// Put this on each level cube (the forge placeholders on the map wall).
 /// Continuously colors itself based on GameSession.BestResults - green if
 /// this level has been passed, red otherwise. Clicked via
-/// MapViewController's mouse-position raycast while map view is open;
-/// loads this cube's Level by setting GameSession.CurrentLevel and
-/// reloading the workshop.
+/// MapViewController's mouse-position raycast while map view is open.
+///
+/// Click flow is now two-step: the FIRST click on a node arms it (via
+/// MapViewController.ArmNode) and shows LevelPreviewUI with the level's
+/// info. The SECOND click on that same already-armed node actually loads
+/// it (LoadLevel sets GameSession.CurrentLevel and reloads the workshop).
+/// Clicking a different node re-arms to that one instead of loading
+/// immediately - see MapViewController for how arming/disarming works.
 /// </summary>
 public class LevelNode : MonoBehaviour, IInteractable
 {
@@ -52,6 +57,35 @@ public class LevelNode : MonoBehaviour, IInteractable
             return;
         }
 
+        bool alreadyArmed = MapViewController.Instance != null && MapViewController.Instance.ArmedNode == this;
+
+        if (alreadyArmed)
+        {
+            LoadLevel();
+            return;
+        }
+
+        if (debugLogging) Debug.Log($"[LevelNode] '{name}' selected - showing preview (click again to load).");
+
+        MapViewController.Instance?.ArmNode(this);
+
+        if (LevelPreviewUI.Instance != null)
+        {
+            LevelPreviewUI.Instance.Show(level, this);
+        }
+        else if (debugLogging)
+        {
+            Debug.LogWarning("[LevelNode] No LevelPreviewUI found in the scene - preview skipped, but node is still armed.");
+        }
+    }
+
+    /// <summary>
+    /// Actually commits to this level - called either by a second click on
+    /// this same node (see Interact above) or by LevelPreviewUI's Play
+    /// button.
+    /// </summary>
+    public void LoadLevel()
+    {
         GameSession.CurrentLevel = level;
 
         string targetScene = string.IsNullOrEmpty(workshopSceneNameOverride)
