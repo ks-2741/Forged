@@ -8490,7 +8490,7 @@ MonoBehaviour:
   handAnchor: {fileID: 201250993}
   clockCenter: {fileID: 1477270468}
   startingYRotation: 0
-  hoursPerClick: 10
+  hoursPerClick: 1
   debugLogging: 1
 --- !u!4 &1109942993
 Transform:
