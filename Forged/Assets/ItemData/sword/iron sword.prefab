@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 3566386769215817665}
   - component: {fileID: 5484787843840118214}
   - component: {fileID: 4578906546059111937}
+  - component: {fileID: 8510515903701581538}
   m_Layer: 8
   m_Name: iron sword
   m_TagString: Untagged
@@ -272,6 +273,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.020000005, y: 0.02, z: 0.020000072}
   m_Center: {x: 0.000000007450581, y: -0.0000000018626451, z: 0.000000029802322}
+--- !u!114 &8510515903701581538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7828650512318327201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
+  debugLogging: 1
 --- !u!1 &8172631266224937379
 GameObject:
   m_ObjectHideFlags: 0

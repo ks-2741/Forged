@@ -19,4 +19,4 @@ MonoBehaviour:
   goldCost: 40
   sellPriceBonus: 0
   furnaceSlotBonus: 0
-  craftSpeedMultiplier: 0.7
+  craftSpeedMultiplier: 0.3

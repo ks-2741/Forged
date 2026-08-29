@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6510990155077107286}
   - component: {fileID: 7819314579698820193}
   - component: {fileID: 207121728535419678}
+  - component: {fileID: -618892649302509427}
   m_Layer: 8
   m_Name: iron ore
   m_TagString: Untagged
@@ -155,4 +156,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: d36b2553f3f96d74daab96ae3c04c5fe, type: 2}
   amount: 1
+  gripPoint: {fileID: 0}
+  debugLogging: 1
+--- !u!114 &-618892649302509427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4798690913298512951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
   debugLogging: 1

@@ -5,8 +5,9 @@ using UnityEngine;
 /// GameSession.CurrentLevel on Start to know this level's day limit and
 /// scoring pars. Counts in-game days via DayNightCycle.onDayStart; once
 /// Day Limit is reached, computes the final score (gold earned, weapons
-/// made, time taken, star rating), banks the player's current gold into
-/// GameSession.BankedGold, records the result, and shows the Scorecard UI.
+/// made, time taken, star rating), banks the player's NET gold earned
+/// this level into GameSession.BankedGold, records the result, and shows
+/// the Scorecard UI.
 /// </summary>
 public class LevelManager : MonoBehaviour
 {
@@ -24,8 +25,17 @@ public class LevelManager : MonoBehaviour
     private LevelDefinition level;
     private int daysElapsed;
     private bool levelEnded;
+    private int startingGoldThisLevel;
 
     public LevelDefinition Level => level;
+
+    /// <summary>
+    /// Days left before this level automatically ends. Unbounded
+    /// (int.MaxValue) if no level is currently set, so anything checking
+    /// this (e.g. NobleManager) doesn't get wrongly blocked while testing
+    /// standalone without a level loaded.
+    /// </summary>
+    public int DaysRemaining => level != null ? Mathf.Max(0, level.dayLimit - daysElapsed) : int.MaxValue;
 
     private void Awake()
     {
@@ -36,13 +46,21 @@ public class LevelManager : MonoBehaviour
     {
         level = GameSession.CurrentLevel != null ? GameSession.CurrentLevel : testLevelFallback;
 
+        // Captured here (not read from Currency's own Starting Balance field)
+        // so this works correctly no matter what the player's actual
+        // balance is the moment the level begins - this is what "gold
+        // earned this level" gets measured against at the end, so doing
+        // nothing and fast-forwarding to the end nets exactly 0, not a
+        // free copy of the starting handout.
+        startingGoldThisLevel = playerCurrency != null ? playerCurrency.Balance : 0;
+
         if (level == null)
         {
             Debug.LogWarning("[LevelManager] No current level set (GameSession.CurrentLevel is empty and no Test Level Fallback assigned) - the day-limit end-of-level check is disabled.");
         }
         else if (debugLogging)
         {
-            Debug.Log($"[LevelManager] Playing '{level.levelName}' - day limit {level.dayLimit}.");
+            Debug.Log($"[LevelManager] Playing '{level.levelName}' - day limit {level.dayLimit}, starting gold {startingGoldThisLevel}.");
         }
     }
 
@@ -82,7 +100,8 @@ public class LevelManager : MonoBehaviour
     {
         levelEnded = true;
 
-        int goldEarned = playerCurrency != null ? playerCurrency.Balance : 0;
+        int finalBalance = playerCurrency != null ? playerCurrency.Balance : 0;
+        int goldEarned = Mathf.Max(0, finalBalance - startingGoldThisLevel);
         int weaponsMade = CraftingStatsTracker.Instance != null ? CraftingStatsTracker.Instance.GetTotalCraftedCount() : 0;
         float timeSeconds = Time.timeSinceLevelLoad;
 
@@ -101,7 +120,7 @@ public class LevelManager : MonoBehaviour
         GameSession.BankedGold += goldEarned;
         GameSession.RecordResult(level, result);
 
-        if (debugLogging) Debug.Log($"[LevelManager] Level ended - {stars} stars, {goldEarned}g earned (now banked, total bank {GameSession.BankedGold}g), {weaponsMade} weapons, {timeSeconds:F0}s. Passed: {passed}.");
+        if (debugLogging) Debug.Log($"[LevelManager] Level ended - {stars} stars, {goldEarned}g NET earned (starting balance {startingGoldThisLevel}, final {finalBalance}) now banked (total bank {GameSession.BankedGold}g), {weaponsMade} weapons, {timeSeconds:F0}s. Passed: {passed}.");
 
         if (ScorecardUI.Instance != null)
         {

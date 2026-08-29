@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelDefinition
   levelName: Level 1
   tier: Knights
-  dayLimit: 10
-  starsRequiredToAdvance: 2
-  goldRequiredToAdvance: 100
-  goldPar: 100
+  dayLimit: 5
+  starsRequiredToAdvance: 1
+  goldRequiredToAdvance: 20
+  goldPar: 20
   weaponsPar: 10
-  timeParSeconds: 600
+  timeParSeconds: 300
   nextLevel: {fileID: 11400000, guid: f7510d93fb98a0a45a45177e11818dd2, type: 2}

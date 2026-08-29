@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2086454199077172342}
   - component: {fileID: 6010278712579104999}
   - component: {fileID: 579285559935758870}
+  - component: {fileID: 3990549648594568561}
   m_Layer: 8
   m_Name: copper sword
   m_TagString: Untagged
@@ -160,6 +161,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.020000005, y: 0.02, z: 0.020000072}
   m_Center: {x: 0.000000007450581, y: -0.0000000018626451, z: 0.000000029802322}
+--- !u!114 &3990549648594568561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656588975546248859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
+  debugLogging: 1
 --- !u!1 &2099573811605215086
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,8 +21,11 @@ public class ScorecardUI : MonoBehaviour
     [SerializeField] private TMP_Text resultLabel;
 
     [Header("Scene Flow")]
-    [Tooltip("The map scene to load when the player presses Continue.")]
+    [Tooltip("The map scene to load when the player presses Continue. Must exactly match a scene name that's been added to File > Build Settings.")]
     [SerializeField] private string mapSceneName = "Map";
+
+    [Header("Debug")]
+    [SerializeField] private bool debugLogging = true;
 
     /// <summary>True while the scorecard is on screen - PlayerController checks this to stop movement while it's up.</summary>
     public bool IsOpen { get; private set; }
@@ -81,6 +84,14 @@ public class ScorecardUI : MonoBehaviour
     /// <summary>Hook this up to the panel's Continue button.</summary>
     public void ContinueToMap()
     {
+        if (debugLogging) Debug.Log($"[ScorecardUI] Continue pressed - loading Map Scene Name '{mapSceneName}'.");
+
+        if (string.IsNullOrEmpty(mapSceneName))
+        {
+            Debug.LogWarning("[ScorecardUI] Map Scene Name is empty - can't load anything.");
+            return;
+        }
+
         IsOpen = false;
         SceneManager.LoadScene(mapSceneName);
     }

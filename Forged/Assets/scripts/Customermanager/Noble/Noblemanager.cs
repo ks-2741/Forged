@@ -51,7 +51,7 @@ public class NobleManager : MonoBehaviour
     }
 
     [Header("Order Templates")]
-    [Tooltip("Possible multi-item commissions - one is picked at random (filtered to unlocked-only) whenever a new noble visit spawns.")]
+    [Tooltip("Possible multi-item commissions - one is picked at random whenever a new noble visit spawns, filtered to templates that are both unlocked AND short enough to realistically finish before the level's day limit.")]
     [SerializeField] private List<NobleOrderTemplate> orderTemplates = new List<NobleOrderTemplate>();
 
     [Header("Debug")]
@@ -114,7 +114,7 @@ public class NobleManager : MonoBehaviour
         NobleOrderTemplate template = PickAvailableTemplate();
         if (template == null)
         {
-            if (debugLogging) Debug.Log("[NobleManager] No unlocked Order Templates available - skipping noble spawn.");
+            if (debugLogging) Debug.Log("[NobleManager] No Order Template is both unlocked and short enough for the days remaining in this level - skipping noble spawn.");
             return;
         }
 
@@ -210,6 +210,10 @@ public class NobleManager : MonoBehaviour
 
     private NobleOrderTemplate PickAvailableTemplate()
     {
+        // Unbounded if there's no LevelManager (e.g. testing this scene
+        // standalone) so template selection isn't wrongly blocked.
+        int daysRemaining = LevelManager.Instance != null ? LevelManager.Instance.DaysRemaining : int.MaxValue;
+
         List<NobleOrderTemplate> available = new List<NobleOrderTemplate>();
         foreach (NobleOrderTemplate template in orderTemplates)
         {
@@ -221,10 +225,22 @@ public class NobleManager : MonoBehaviour
             bool unlocked = template.requiredBlueprint == null
                 || (BlueprintManager.Instance != null && BlueprintManager.Instance.IsUnlocked(template.requiredBlueprint));
 
-            if (unlocked)
+            if (!unlocked)
             {
-                available.Add(template);
+                continue;
             }
+
+            // Leave at least 1 day of buffer AFTER the order becomes due,
+            // so the returning noble actually has time to stand there and
+            // collect delivery before the level itself ends and the scene
+            // reloads out from under them.
+            bool fitsInRemainingTime = template.daysToComplete <= daysRemaining - 1;
+            if (!fitsInRemainingTime)
+            {
+                continue;
+            }
+
+            available.Add(template);
         }
 
         if (available.Count == 0)

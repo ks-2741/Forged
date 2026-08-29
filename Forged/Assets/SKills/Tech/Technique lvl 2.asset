@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 
   path: 0
   tier: 2
-  goldCost: 20
-  sellPriceBonus: 0.2
+  goldCost: 40
+  sellPriceBonus: 0.4
   furnaceSlotBonus: 0
   craftSpeedMultiplier: 0

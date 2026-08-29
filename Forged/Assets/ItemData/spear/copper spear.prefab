@@ -361,8 +361,31 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6333462374421091510, guid: 27bc1731c766e3740bb1ca7ec2307f68, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5302618993608093416}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2316432823330688108, guid: 27bc1731c766e3740bb1ca7ec2307f68, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1118910444833887877}
   m_SourcePrefab: {fileID: 100100000, guid: 27bc1731c766e3740bb1ca7ec2307f68, type: 3}
+--- !u!1 &1891534124568625214 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2316432823330688108, guid: 27bc1731c766e3740bb1ca7ec2307f68, type: 3}
+  m_PrefabInstance: {fileID: 4207922407339396178}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1118910444833887877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891534124568625214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
+  debugLogging: 1
 --- !u!4 &7890712660914002148 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6333462374421091510, guid: 27bc1731c766e3740bb1ca7ec2307f68, type: 3}

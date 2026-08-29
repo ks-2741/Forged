@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 6927037256652144815}
   - component: {fileID: -2914552720989117766}
   - component: {fileID: 5401247481501867526}
+  - component: {fileID: 2498211760545784091}
   m_Layer: 12
   m_Name: 'coin pile '
   m_TagString: Untagged
@@ -213,6 +214,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.8228378, y: 0.5694822, z: 0.31518555}
   m_Center: {x: -1.0995903, y: 0.2152589, z: 0.34240723}
+--- !u!114 &2498211760545784091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7241895157862521238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 4323022442905329455, guid: 67c21ab5d5aa2304ba7e7fe7d0e53351, type: 3}
+  resetYThreshold: -5
+  checkInterval: 1
+  debugLogging: 1
 --- !u!1 &7243172694920775391
 GameObject:
   m_ObjectHideFlags: 0

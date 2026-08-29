@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8368471864454157448}
   - component: {fileID: 3722108353826370290}
   - component: {fileID: 2869803218910234356}
+  - component: {fileID: -2158313102659024970}
   m_Layer: 8
   m_Name: copper
   m_TagString: Untagged
@@ -155,4 +156,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: cdcaa928ed4f707488fbd27677ff582e, type: 2}
   amount: 1
+  gripPoint: {fileID: 0}
+  debugLogging: 1
+--- !u!114 &-2158313102659024970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3824495861194542439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
   debugLogging: 1

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2711953687418716201}
   - component: {fileID: 3589307297486875360}
   - component: {fileID: 7719456408644941809}
+  - component: {fileID: -4742346274691844260}
   m_Layer: 8
   m_Name: Speaer Iron blade
   m_TagString: Untagged
@@ -156,4 +157,19 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: 298ceebfe8436124bbadbb88a8c373e2, type: 2}
   amount: 1
   gripPoint: {fileID: 0}
+  debugLogging: 1
+--- !u!114 &-4742346274691844260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1211488661988127005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
   debugLogging: 1

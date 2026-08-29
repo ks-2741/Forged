@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Placeable' layer
   - Mold
+  - FallResetZone
   layers:
   - Default
   - TransparentFX

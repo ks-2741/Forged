@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8681942750128047453}
   - component: {fileID: -2627541092059757684}
   - component: {fileID: 5251584601204975892}
+  - component: {fileID: -329526745326259779}
   m_Layer: 8
   m_Name: polySurface33
   m_TagString: Untagged
@@ -157,3 +158,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.009375342, y: 0.014225291, z: 0.009375333}
   m_Center: {x: -9.313225e-10, y: -0.000000004190951, z: 0}
+--- !u!114 &-329526745326259779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4877764427923722962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
+  debugLogging: 1

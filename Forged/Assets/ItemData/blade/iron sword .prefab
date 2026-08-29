@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 5958890179094070778}
   - component: {fileID: 1573080039972491919}
   - component: {fileID: 2162934354261452966}
+  - component: {fileID: -2132412921540063976}
   m_Layer: 8
   m_Name: 'iron sword '
   m_TagString: Untagged
@@ -268,4 +269,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: 8a41dbd0b300e5049a58550a65e5a6fd, type: 2}
   amount: 1
+  gripPoint: {fileID: 0}
+  debugLogging: 1
+--- !u!114 &-2132412921540063976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2706159146850054090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8bd6d27752423f4482ddc57f1671622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallResetGuard
+  resetPoint: {fileID: 0}
+  fallZoneTag: FallResetZone
   debugLogging: 1

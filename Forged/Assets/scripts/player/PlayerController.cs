@@ -158,12 +158,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>True while any modal state is active - shop, blueprint book, the end-of-level scorecard, or map view.</summary>
+    /// <summary>True while any modal state is active - shop, blueprint book, the end-of-level scorecard, map view, or the tester menu.</summary>
     private bool IsUIBlockingMovement()
     {
         return (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
             || (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen)
             || (ScorecardUI.Instance != null && ScorecardUI.Instance.IsOpen)
-            || (MapViewController.Instance != null && MapViewController.Instance.IsOpen);
+            || (MapViewController.Instance != null && MapViewController.Instance.IsOpen)
+            || (TesterMenu.Instance != null && TesterMenu.Instance.IsOpen);
     }
-}
+}   

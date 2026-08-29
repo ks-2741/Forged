@@ -18,5 +18,5 @@ MonoBehaviour:
   tier: 4
   goldCost: 100
   sellPriceBonus: 0
-  furnaceSlotBonus: 2
-  craftSpeedMultiplier: 1
+  furnaceSlotBonus: 1
+  craftSpeedMultiplier: 0.5

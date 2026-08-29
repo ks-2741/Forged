@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bdc58c0bbf23e49a0d4478b65b16ce, type: 3}
+  m_Name: Anvil
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: grinder
+  description: 
+  icon: {fileID: 0}
+  category: 4
+  maxStackSize: 1
+  sellValue: 1
+  worldPrefab: {fileID: 4917227914446522540, guid: 9be8d894b6259724b94a90281bf1da5d, type: 3}
