@@ -45,7 +45,13 @@ public class PlayerInteractor : MonoBehaviour
             return;
         }
 
-       
+        // While the map is open, MapViewController owns clicks with its own
+        // mouse-position raycast - this crosshair-centered one must stay
+        // out of the way, or a single click could fire both at once.
+        if (MapViewController.Instance != null && MapViewController.Instance.IsOpen)
+        {
+            return;
+        }
 
         if (UnityEngine.EventSystems.EventSystem.current != null
             && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())

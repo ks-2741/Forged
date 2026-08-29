@@ -67,7 +67,13 @@ public class BuildModeController : MonoBehaviour
             return;
         }
 
-       
+        // Don't allow any build mode input while the map is open - avoids
+        // pressing B or clicking while the camera is detached looking at
+        // the wall.
+        if (MapViewController.Instance != null && MapViewController.Instance.IsOpen)
+        {
+            return;
+        }
 
         // Only allow toggling Build Mode when nothing's currently held, so
         // you can't get stuck carrying something with no way to place it.

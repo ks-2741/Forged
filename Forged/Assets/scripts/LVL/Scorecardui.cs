@@ -24,6 +24,9 @@ public class ScorecardUI : MonoBehaviour
     [Tooltip("The map scene to load when the player presses Continue.")]
     [SerializeField] private string mapSceneName = "Map";
 
+    /// <summary>True while the scorecard is on screen - PlayerController checks this to stop movement while it's up.</summary>
+    public bool IsOpen { get; private set; }
+
     private void Awake()
     {
         Instance = this;
@@ -40,6 +43,7 @@ public class ScorecardUI : MonoBehaviour
             panel.SetActive(true);
         }
 
+        IsOpen = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -77,6 +81,7 @@ public class ScorecardUI : MonoBehaviour
     /// <summary>Hook this up to the panel's Continue button.</summary>
     public void ContinueToMap()
     {
+        IsOpen = false;
         SceneManager.LoadScene(mapSceneName);
     }
 

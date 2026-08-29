@@ -102,6 +102,13 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
+        // Don't let WASD move the player while a UI panel or the map view
+        // has taken over the cursor.
+        if (IsUIBlockingMovement())
+        {
+            return;
+        }
+
         Vector3 inputDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
 
         if (inputDirection.magnitude < 0.1f)
@@ -143,15 +150,20 @@ public class PlayerController : MonoBehaviour
             // Don't steal the click back to re-lock the cursor while a UI
             // panel is the reason it's unlocked in the first place - that
             // panel owns cursor state until it closes itself.
-            bool uiPanelOpen = (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
-                || (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen);
-               
-
-            if (!uiPanelOpen)
+            if (!IsUIBlockingMovement())
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
         }
+    }
+
+    /// <summary>True while any modal state is active - shop, blueprint book, the end-of-level scorecard, or map view.</summary>
+    private bool IsUIBlockingMovement()
+    {
+        return (SellerStation.Instance != null && SellerStation.Instance.IsShopOpen)
+            || (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen)
+            || (ScorecardUI.Instance != null && ScorecardUI.Instance.IsOpen)
+            || (MapViewController.Instance != null && MapViewController.Instance.IsOpen);
     }
 }
