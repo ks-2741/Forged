@@ -8490,7 +8490,7 @@ MonoBehaviour:
   handAnchor: {fileID: 201250993}
   clockCenter: {fileID: 1477270468}
   startingYRotation: 0
-  hoursPerClick: 1
+  hoursPerClick: 2
   debugLogging: 1
 --- !u!4 &1109942993
 Transform:
@@ -15913,8 +15913,8 @@ MonoBehaviour:
   skyVolume: {fileID: 432432460}
   daySkyTexture: {fileID: 8900000, guid: beb1457d375110e468b8d8e1f29fccea, type: 3}
   nightSkyTexture: {fileID: 8900000, guid: fa41734a337674542975482c8fe96ea1, type: 3}
-  dayDuration: 88.3
-  nightDuration: 50
+  dayDuration: 176.6
+  nightDuration: 100
   currentPhaseTime: 0
   startingPhase: 1
   onDayStart:
