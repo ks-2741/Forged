@@ -14,6 +14,13 @@ using UnityEngine;
 /// Efficiency skill path has unlocked (SkillManager.FurnaceSlotBonus), so
 /// the furnace only blocks a new smelt once every slot is busy. Craft time
 /// per-smelt is also scaled by SkillManager.CraftSpeedMultiplier.
+///
+/// Door/Tray animation: idle state is DOOR OPEN + TRAY OUT. The moment the
+/// furnace goes from empty to busy (first smelt starts), it plays
+/// Tray In -> Door Close. The moment it goes back to fully empty (last
+/// active smelt finishes), it plays Door Open -> Tray Out. With multiple
+/// concurrent slots, starting a 2nd/3rd smelt while already busy does NOT
+/// replay the close sequence - the furnace is already shut.
 /// </summary>
 public class CraftingStation : MonoBehaviour, IInteractable
 {
@@ -32,6 +39,22 @@ public class CraftingStation : MonoBehaviour, IInteractable
     [Tooltip("Your existing invisible/ghost mold object, already positioned at the mold slot. This script only enables/disables it - shown while the player looks at the furnace holding a compatible mold and the slot is empty.")]
     [SerializeField] private GameObject moldPreview;
     [SerializeField] private float lookRange = 8f;
+
+    [Header("Door / Tray Animation")]
+    [Tooltip("Animator with your 4 clips wired up as states/triggers. Idle state (in the Animator itself) should be Door Open + Tray Out.")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string trayInTrigger = "TrayIn";
+    [SerializeField] private string doorCloseTrigger = "DoorClose";
+    [SerializeField] private string doorOpenTrigger = "DoorOpen";
+    [SerializeField] private string trayOutTrigger = "TrayOut";
+    [Tooltip("Seconds to wait after triggering Tray In before triggering Door Close - match this to your Tray In clip's length.")]
+    [SerializeField] private float trayInDuration = 0.4f;
+    [Tooltip("Seconds to wait after triggering Door Close before treating the furnace as fully shut - match this to your Door Close clip's length.")]
+    [SerializeField] private float doorCloseDuration = 0.4f;
+    [Tooltip("Seconds to wait after triggering Door Open before triggering Tray Out - match this to your Door Open clip's length.")]
+    [SerializeField] private float doorOpenDuration = 0.4f;
+    [Tooltip("Seconds to wait after triggering Tray Out before treating the furnace as fully idle again - match this to your Tray Out clip's length.")]
+    [SerializeField] private float trayOutDuration = 0.4f;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
@@ -233,8 +256,18 @@ public class CraftingStation : MonoBehaviour, IInteractable
             return;
         }
 
+        // Only play the closing sequence when the furnace is currently idle -
+        // if another smelt is already running (extra Efficiency slots), the
+        // door is already shut and shouldn't replay the animation.
+        bool wasIdle = activeCrafts.Count == 0;
+
         playerHand.ConsumeHeld();
         StartCoroutine(CraftRoutine(matchingRecipe));
+
+        if (wasIdle)
+        {
+            StartCoroutine(PlayCloseSequence());
+        }
     }
 
     private CraftingRecipe FindRecipeFor(ItemData heldItem)
@@ -277,5 +310,54 @@ public class CraftingStation : MonoBehaviour, IInteractable
         if (debugLogging) Debug.Log($"[CraftingStation] Done - {recipe.outputAmount}x '{recipe.outputItem.itemName}' dropped on the tray.");
 
         activeCrafts.Remove(job);
+
+        // Only reopen once every slot has finished - if other smelts are
+        // still cooking (extra Efficiency slots), the furnace stays shut.
+        if (activeCrafts.Count == 0)
+        {
+            StartCoroutine(PlayOpenSequence());
+        }
+    }
+
+    private IEnumerator PlayCloseSequence()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(trayInTrigger);
+        }
+        else if (debugLogging)
+        {
+            Debug.LogWarning($"[CraftingStation] '{stationName}' has no Animator assigned - skipping close animation.");
+        }
+
+        yield return new WaitForSeconds(trayInDuration);
+
+        if (animator != null)
+        {
+            animator.SetTrigger(doorCloseTrigger);
+        }
+
+        yield return new WaitForSeconds(doorCloseDuration);
+    }
+
+    private IEnumerator PlayOpenSequence()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(doorOpenTrigger);
+        }
+        else if (debugLogging)
+        {
+            Debug.LogWarning($"[CraftingStation] '{stationName}' has no Animator assigned - skipping open animation.");
+        }
+
+        yield return new WaitForSeconds(doorOpenDuration);
+
+        if (animator != null)
+        {
+            animator.SetTrigger(trayOutTrigger);
+        }
+
+        yield return new WaitForSeconds(trayOutDuration);
     }
 }
