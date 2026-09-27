@@ -136,13 +136,8 @@ public class PlayerController : MonoBehaviour
 
     private void HandleCursorToggle()
     {
-        // Press Escape to free the cursor (e.g. for a pause menu), click to relock.
-        var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+        // SaveGameManager owns Escape for the pause menu. Keep the cursor
+        // locked here unless another modal UI explicitly releases it.
 
         var mouse = Mouse.current;
         if (mouse != null && mouse.leftButton.wasPressedThisFrame && lockCursor && Cursor.lockState != CursorLockMode.Locked)
@@ -165,6 +160,7 @@ public class PlayerController : MonoBehaviour
             || (BlueprintBook.Instance != null && BlueprintBook.Instance.IsOpen)
             || (ScorecardUI.Instance != null && ScorecardUI.Instance.IsOpen)
             || (MapViewController.Instance != null && MapViewController.Instance.IsOpen)
-            || (TesterMenu.Instance != null && TesterMenu.Instance.IsOpen);
+            || (TesterMenu.Instance != null && TesterMenu.Instance.IsOpen)
+            || SaveGameManager.IsMenuOpen;
     }
 }   

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Simple tester utility panel. Press Escape once to open it, Escape again
+/// Simple tester utility panel. Press 0 once to open it, 0 again
 /// to close it - unlike other panels in the game (shop, blueprint book),
 /// this one doesn't need a button or world object to open, just the key.
 ///
@@ -40,7 +40,7 @@ public class TesterMenu : MonoBehaviour
             return;
         }
 
-        if (keyboard.escapeKey.wasPressedThisFrame)
+        if (keyboard.digit0Key.wasPressedThisFrame)
         {
             Toggle();
         }
